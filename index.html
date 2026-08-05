@@ -7,53 +7,53 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;background:#f0f4f2;color:#111827;min-height:100vh}
-/* NAV */
 .nav{background:linear-gradient(135deg,#0A5C48,#1D9E75);padding:0 1.5rem;height:64px;display:flex;align-items:center;gap:12px}
 .nav-logo{width:44px;height:44px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
 .nav-title{flex:1;color:#fff}
 .nav-title h1{font-size:16px;font-weight:700}
 .nav-title p{font-size:11px;opacity:.8;margin-top:1px}
 .nav-count{background:rgba(255,255,255,.2);color:#fff;border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;white-space:nowrap}
-/* TABS */
 .tabs{background:#fff;border-bottom:2px solid #e5e7eb;display:flex;overflow-x:auto;padding:0 1rem}
-.tab{padding:14px 16px;border:none;background:none;font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#6b7280;cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tab{padding:14px 14px;border:none;background:none;font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#6b7280;cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px}
 .tab:hover{color:#1D9E75}
 .tab.on{color:#0A5C48;border-bottom-color:#1D9E75}
 .cnt{background:#0A5C48;color:#fff;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:4px}
-/* PANELS */
 .wrap{max-width:1100px;margin:0 auto;padding:1.5rem}
 .pn{display:none}.pn.on{display:block}
-/* CARD */
 .card{background:#fff;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.08);padding:1.25rem 1.5rem;margin-bottom:1rem}
 /* METRICS */
-.mrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:1rem}
-.mc{border-radius:14px;padding:1.25rem 1.5rem}
+.mrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:1rem}
+.mc{border-radius:14px;padding:1.1rem 1.25rem}
 .mc-g{background:linear-gradient(135deg,#0F7A62,#1D9E75)}
 .mc-b{background:linear-gradient(135deg,#1D4ED8,#3B82F6)}
 .mc-p{background:linear-gradient(135deg,#4338CA,#7C3AED)}
 .mc-a{background:linear-gradient(135deg,#B45309,#D97706)}
 .mc-t{background:linear-gradient(135deg,#0F766E,#14B8A6)}
-.mn{font-size:30px;font-weight:700;color:#fff}
-.ml{font-size:12px;color:rgba(255,255,255,.85);margin-top:3px}
+.mc-r{background:linear-gradient(135deg,#dc2626,#ef4444)}
+.mn{font-size:26px;font-weight:700;color:#fff}
+.ml{font-size:11px;color:rgba(255,255,255,.85);margin-top:3px}
 /* FORM */
 .fg{display:grid;gap:12px;margin-bottom:12px}
 .g2{grid-template-columns:1fr 1fr}
 .g3{grid-template-columns:1fr 1fr 1fr}
-@media(max-width:600px){.g2,.g3{grid-template-columns:1fr}}
+.g4{grid-template-columns:auto 1fr 1fr 1fr}
+@media(max-width:650px){.g2,.g3,.g4{grid-template-columns:1fr 1fr}}
+@media(max-width:450px){.g2,.g3,.g4{grid-template-columns:1fr}}
 .fi label{display:block;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
 .fi input,.fi select{width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:14px;color:#111827;background:#fff;outline:none}
 .fi input:focus,.fi select:focus{border-color:#1D9E75;box-shadow:0 0 0 3px rgba(29,158,117,.12)}
-/* TYPE TOGGLE */
 .ttog{display:grid;grid-template-columns:1fr 1fr;border:1.5px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:12px}
 .to{padding:10px;text-align:center;cursor:pointer;font-size:13px;font-weight:600;color:#6b7280;background:#fff;border:none;font-family:Arial,sans-serif}
 .to:first-child{border-right:1.5px solid #e5e7eb}
 .to.m-on{background:#0A5C48;color:#fff}
 .to.e-on{background:#B45309;color:#fff}
-/* MEASURE BOX */
 .mbox{background:#E1F5EE;border:1.5px solid #A8DFD0;border-radius:8px;padding:10px 14px;font-size:13px;color:#0A5C48;margin-bottom:12px}
-/* BUTTON */
-.btn-g{width:100%;padding:12px;background:linear-gradient(135deg,#0F7A62,#1D9E75);color:#fff;border:none;border-radius:10px;font-family:Arial,sans-serif;font-size:15px;font-weight:700;cursor:pointer}
+/* BUTTONS */
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.btn-g{width:100%;padding:12px;background:linear-gradient(135deg,#0F7A62,#1D9E75);color:#fff;border:none;border-radius:10px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;cursor:pointer}
 .btn-g:hover{opacity:.9}
+.btn-save{width:100%;padding:12px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);color:#fff;border:none;border-radius:10px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;cursor:pointer}
+.btn-save:hover{opacity:.9}
 .btn-sm{padding:6px 12px;border-radius:8px;font-family:Arial,sans-serif;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #e5e7eb;background:#fff;color:#374151}
 .btn-sm:hover{background:#f3f4f6}
 .btn-r{border-color:#fecaca;background:#fee2e2;color:#dc2626}
@@ -63,21 +63,19 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
 .oi{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f3f4f6}
 .oi:last-child{border:none}
 .av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
-.avm{background:#dbeafe;color:#1D4ED8}
-.avf{background:#ede9fe;color:#4338CA}
+.avm{background:#dbeafe;color:#1D4ED8}.avf{background:#ede9fe;color:#4338CA}
 .oin{flex:1;min-width:0}
 .oname{font-size:13px;font-weight:700}
 .ometa{font-size:11px;color:#6b7280;margin-top:1px}
 .osiz{font-size:11px;font-weight:700;background:#E1F5EE;color:#0A5C48;border-radius:6px;padding:2px 7px}
-.oqt{font-size:11px;color:#6b7280}
 .bdl{background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px;border-radius:6px;font-size:16px;line-height:1}
 .bdl:hover{color:#dc2626;background:#fee2e2}
-/* CHART BARS */
+/* BARS */
 .br{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.bl{font-size:13px;width:150px;flex-shrink:0}
+.bl{font-size:12px;width:140px;flex-shrink:0}
 .bw{flex:1;background:#f3f4f6;border-radius:10px;height:8px;overflow:hidden}
 .bp{height:100%;border-radius:10px}
-.bv{font-size:13px;font-weight:700;width:30px;text-align:right}
+.bv{font-size:13px;font-weight:700;width:35px;text-align:right}
 /* HOSP GRID */
 .hg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 @media(max-width:700px){.hg{grid-template-columns:1fr 1fr}}
@@ -94,25 +92,24 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
 .rt{width:100%;border-collapse:collapse;font-size:13px}
 .rt th{padding:9px 10px;background:#f9fafb;font-weight:700;font-size:11px;color:#6b7280;text-align:left;border-bottom:2px solid #e5e7eb}
 .rt td{padding:8px 10px;border-bottom:1px solid #f3f4f6}
+.rt tr:hover td{background:#f9fafb}
 .rt tfoot td{font-weight:700;background:#E1F5EE;color:#0A5C48}
+.rt td.num{text-align:right;font-variant-numeric:tabular-nums}
 .chip{display:inline-block;border-radius:20px;padding:2px 9px;font-size:11px;font-weight:700}
-.cm{background:#dbeafe;color:#1D4ED8}
-.cf{background:#ede9fe;color:#4338CA}
-.cmt{background:#E1F5EE;color:#0A5C48}
-.cex{background:#fef3c7;color:#B45309}
+.cm{background:#dbeafe;color:#1D4ED8}.cf{background:#ede9fe;color:#4338CA}
+.cmt{background:#E1F5EE;color:#0A5C48}.cex{background:#fef3c7;color:#B45309}
 /* SIZE CHART */
-.st{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap}
+.st{width:100%;border-collapse:collapse;font-size:13px}
 .st th{padding:8px 12px;background:#E1F5EE;color:#0A5C48;font-weight:700;text-align:center;border:1px solid #A8DFD0}
 .st td{padding:7px 12px;border:1px solid #e5e7eb;text-align:center}
 .st td.rl{background:#f9fafb;font-weight:700;text-align:left}
-/* MODAL - inline no overlay */
+/* MODAL INLINE */
 .modal-box{display:none;background:#fff;border:2px solid #e5e7eb;border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;box-shadow:0 4px 20px rgba(0,0,0,.15)}
 .modal-box.on{display:block}
 .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
 .modal-head h3{font-size:15px;font-weight:700}
-.bcl{background:none;border:1.5px solid #e5e7eb;border-radius:8px;cursor:pointer;color:#6b7280;font-size:18px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-family:Arial}
+.bcl{background:none;border:1.5px solid #e5e7eb;border-radius:8px;cursor:pointer;color:#6b7280;font-size:18px;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
 .bcl:hover{color:#111;background:#f3f4f6}
-/* EDIT ROW */
 .er{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f3f4f6}
 .er:last-child{border:none}
 .eav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
@@ -120,19 +117,29 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
 .enm{font-size:13px;font-weight:700;margin-bottom:4px}
 .emt{font-size:11px;color:#6b7280}
 .ebt{display:flex;gap:6px;margin-top:6px}
-.bed{padding:4px 10px;border-radius:6px;border:1.5px solid #A8DFD0;background:#E1F5EE;color:#0A5C48;font-size:11px;font-weight:700;cursor:pointer;font-family:Arial}
-.bde{padding:4px 10px;border-radius:6px;border:1.5px solid #fecaca;background:#fee2e2;color:#dc2626;font-size:11px;font-weight:700;cursor:pointer;font-family:Arial}
+.bed{padding:4px 10px;border-radius:6px;border:1.5px solid #A8DFD0;background:#E1F5EE;color:#0A5C48;font-size:11px;font-weight:700;cursor:pointer}
+.bde{padding:4px 10px;border-radius:6px;border:1.5px solid #fecaca;background:#fee2e2;color:#dc2626;font-size:11px;font-weight:700;cursor:pointer}
 /* TOAST */
-#toast{display:none;background:#0F7A62;color:#fff;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;margin-bottom:1rem;align-items:center;gap:8px}
-#toast.on{display:flex}
-#toast.err{background:#dc2626}
-/* EMPTY */
+#toast{display:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;margin-bottom:1rem;align-items:center;gap:8px}
+#toast.ok{display:flex;background:#0F7A62;color:#fff}
+#toast.err{display:flex;background:#dc2626;color:#fff}
 .emp{text-align:center;padding:2rem;color:#9ca3af;font-size:13px}
-.sec-title{font-size:15px;font-weight:700;color:#111827;margin-bottom:1rem;display:flex;align-items:center;gap:6px}
+.sec{font-size:15px;font-weight:700;color:#111827;margin-bottom:1rem}
 .d2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem}
 @media(max-width:600px){.d2{grid-template-columns:1fr}}
 .fbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
 .fbar select{padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:12px;color:#374151}
+/* PRICE TAG */
+.price-tag{background:#fef3c7;border:1.5px solid #fde68a;border-radius:8px;padding:8px 14px;font-size:13px;color:#B45309;font-weight:700;display:inline-block;margin-bottom:8px}
+/* EXPORT BTNS */
+.exp-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+.btn-exp{padding:8px 16px;border-radius:8px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px}
+.btn-exp-g{background:#0A5C48;color:#fff}
+.btn-exp-g:hover{background:#0F7A62}
+.btn-exp-a{background:#B45309;color:#fff}
+.btn-exp-a:hover{background:#D97706}
+.btn-exp-b{background:#1D4ED8;color:#fff}
+.btn-exp-b:hover{background:#2563EB}
 </style>
 </head>
 <body>
@@ -156,11 +163,9 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
 </div>
 
 <div class="wrap">
+<div id="toast"><span id="tmsg"></span></div>
 
-<!-- TOAST -->
-<div id="toast">✓ <span id="tmsg"></span></div>
-
-<!-- DASHBOARD -->
+<!-- ===== DASHBOARD ===== -->
 <div class="pn on" id="pn-dash">
   <div class="mrow">
     <div class="mc mc-g"><div class="mn" id="d-tot">0</div><div class="ml">เสื้อทั้งหมด (ตัว)</div></div>
@@ -168,82 +173,94 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
     <div class="mc mc-p"><div class="mn" id="d-f">0</div><div class="ml">เสื้อหญิง (ตัว)</div></div>
     <div class="mc mc-a"><div class="mn" id="d-p">0</div><div class="ml">ผู้สั่งจอง (คน)</div></div>
     <div class="mc mc-t"><div class="mn" id="d-h">0/24</div><div class="ml">รพ.สต. ที่สั่งแล้ว</div></div>
+    <div class="mc mc-r"><div class="mn" id="d-money">0</div><div class="ml">ยอดเงินสั่งซื้อเพิ่ม (บาท)</div></div>
   </div>
 
   <div class="d2">
     <div class="card">
-      <div class="sec-title">🏷️ แยกประเภทการสั่ง</div>
+      <div class="sec">🏷️ แยกประเภทการสั่ง</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
         <div style="background:#E1F5EE;border-radius:8px;padding:14px;text-align:center">
-          <div style="font-size:26px;font-weight:700;color:#0A5C48" id="d-meet">0</div>
-          <div style="font-size:12px;color:#6b7280">ลงทะเบียนประชุม</div>
+          <div style="font-size:24px;font-weight:700;color:#0A5C48" id="d-meet">0</div>
+          <div style="font-size:11px;color:#6b7280">ลงทะเบียนประชุม</div>
         </div>
         <div style="background:#fef3c7;border-radius:8px;padding:14px;text-align:center">
-          <div style="font-size:26px;font-weight:700;color:#B45309" id="d-ex">0</div>
-          <div style="font-size:12px;color:#6b7280">สั่งซื้อเพิ่ม</div>
+          <div style="font-size:24px;font-weight:700;color:#B45309" id="d-ex">0</div>
+          <div style="font-size:11px;color:#6b7280">สั่งซื้อเพิ่ม</div>
         </div>
       </div>
       <div id="typebars"></div>
     </div>
     <div class="card">
-      <div class="sec-title">📈 Top 5 ไซส์ยอดนิยม</div>
+      <div class="sec">📈 Top 5 ไซส์ยอดนิยม</div>
       <div id="topbars"></div>
     </div>
   </div>
 
-  <!-- HOSP MODAL (inline) -->
+  <!-- HOSP MODAL -->
   <div class="modal-box" id="hosp-modal">
     <div class="modal-head">
       <h3 id="hosp-title">รายชื่อ</h3>
-      <button class="bcl" onclick="closeHospModal()">✕</button>
+      <button class="bcl" onclick="closeHM()">✕</button>
     </div>
     <div id="hosp-body"></div>
   </div>
 
-  <!-- EDIT MODAL (inline) -->
+  <!-- EDIT MODAL -->
   <div class="modal-box" id="edit-modal">
     <div class="modal-head">
       <h3>แก้ไขรายการ</h3>
-      <button class="bcl" onclick="closeEditModal()">✕</button>
+      <button class="bcl" onclick="closeEM()">✕</button>
     </div>
-    <div class="fg" style="margin-bottom:12px">
-      <div class="fi"><label>ชื่อ-นามสกุล</label><input id="e-name" type="text"></div>
-      <div class="fi"><label>โทรศัพท์</label><input id="e-phone" type="tel"></div>
+    <div class="fg">
+      <div class="fg g4">
+        <div class="fi"><label>คำนำหน้า</label><select id="e-prefix"><option>นาย</option><option>นาง</option><option>นางสาว</option></select></div>
+        <div class="fi"><label>ชื่อ</label><input id="e-fname" type="text" placeholder="ชื่อ"></div>
+        <div class="fi"><label>นามสกุล</label><input id="e-lname" type="text" placeholder="นามสกุล"></div>
+        <div class="fi"><label>โทรศัพท์</label><input id="e-phone" type="tel"></div>
+      </div>
       <div class="fi"><label>หน่วยบริการ</label><input id="e-dept" type="text"></div>
-      <div class="fg g2">
+      <div class="fg g3">
         <div class="fi"><label>เพศ</label><select id="e-gender" onchange="syncESz()"><option value="M">ชาย</option><option value="F">หญิง</option></select></div>
         <div class="fi"><label>ขนาด</label><select id="e-size"></select></div>
+        <div class="fi"><label>จำนวน</label><input id="e-qty" type="number" min="1"></div>
       </div>
-      <div class="fg g2">
-        <div class="fi"><label>จำนวน (ตัว)</label><input id="e-qty" type="number" min="1"></div>
-        <div class="fi"><label>ประเภท</label><select id="e-type"><option value="meet">ลงทะเบียนประชุม</option><option value="extra">สั่งซื้อเพิ่ม</option></select></div>
-      </div>
+      <div class="fi"><label>ประเภท</label><select id="e-type"><option value="meet">ลงทะเบียนประชุม</option><option value="extra">สั่งซื้อเพิ่ม</option></select></div>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button class="btn-sm" onclick="closeEditModal()">ยกเลิก</button>
+      <button class="btn-sm" onclick="closeEM()">ยกเลิก</button>
       <button class="btn-sm" style="background:#0A5C48;color:#fff;border-color:#0A5C48" onclick="saveEdit()">✓ บันทึก</button>
     </div>
   </div>
 
   <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-      <div class="sec-title" style="margin:0">🏥 สถานะ รพ.สต. — คลิกเพื่อดู/แก้ไข</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:1rem">
+      <div class="sec" style="margin:0">🏥 สถานะ รพ.สต. — คลิกเพื่อดู/แก้ไข</div>
       <div style="display:flex;gap:8px">
-        <span style="font-size:12px;font-weight:700;color:#0A5C48;background:#E1F5EE;border-radius:20px;padding:3px 12px" id="d-hdone">0 แห่ง</span>
-        <span style="font-size:12px;font-weight:700;color:#6b7280;background:#f3f4f6;border-radius:20px;padding:3px 12px" id="d-hnone">0 แห่ง</span>
+        <span style="font-size:12px;font-weight:700;color:#0A5C48;background:#E1F5EE;border-radius:20px;padding:3px 12px" id="d-hdone">0 แห่ง สั่งแล้ว</span>
+        <span style="font-size:12px;font-weight:700;color:#6b7280;background:#f3f4f6;border-radius:20px;padding:3px 12px" id="d-hnone">0 แห่ง ยังไม่สั่ง</span>
       </div>
     </div>
     <div class="hg" id="hosp-grid"></div>
   </div>
 </div>
 
-<!-- ENTRY -->
+<!-- ===== ENTRY ===== -->
 <div class="pn" id="pn-entry">
   <div class="card">
-    <div class="sec-title">👤 ข้อมูลผู้สั่งจอง</div>
-    <div class="fg g2">
-      <div class="fi"><label>ชื่อ-นามสกุล *</label><input id="f-name" type="text" placeholder="กรอกชื่อ-นามสกุล"></div>
-      <div class="fi"><label>หมายเลขโทรศัพท์</label><input id="f-phone" type="tel" placeholder="089-xxx-xxxx"></div>
+    <div class="sec">👤 ข้อมูลผู้สั่งจอง</div>
+    <div class="fg g4" style="margin-bottom:12px">
+      <div class="fi">
+        <label>คำนำหน้า</label>
+        <select id="f-prefix">
+          <option>นาย</option>
+          <option>นาง</option>
+          <option>นางสาว</option>
+        </select>
+      </div>
+      <div class="fi"><label>ชื่อ *</label><input id="f-fname" type="text" placeholder="ชื่อ"></div>
+      <div class="fi"><label>นามสกุล *</label><input id="f-lname" type="text" placeholder="นามสกุล"></div>
+      <div class="fi"><label>โทรศัพท์</label><input id="f-phone" type="tel" placeholder="089-xxx-xxxx"></div>
     </div>
     <div class="fi" style="margin-bottom:12px">
       <label>หน่วยบริการ *</label>
@@ -281,30 +298,34 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
       <input id="f-oth" type="text" placeholder="กรอกชื่อหน่วยบริการ">
     </div>
     <hr>
-    <div class="sec-title">🏷️ ประเภทการสั่ง</div>
+    <div class="sec">🏷️ ประเภทการสั่ง</div>
     <div class="ttog">
       <button class="to m-on" id="t-meet" onclick="setTyp('meet')">🗓 ลงทะเบียนร่วมประชุม</button>
       <button class="to" id="t-extra" onclick="setTyp('extra')">🛒 สั่งซื้อเพิ่ม (ไม่ร่วมประชุม)</button>
     </div>
     <hr>
-    <div class="sec-title">👕 ขนาดเสื้อ</div>
+    <div class="sec">👕 ขนาดเสื้อ</div>
     <div class="fg g3">
       <div class="fi"><label>เพศ</label><select id="f-gender" onchange="syncSz()"><option value="M">ชาย</option><option value="F">หญิง</option></select></div>
-      <div class="fi"><label>ขนาด (รอบอก)</label><select id="f-size" onchange="showM()"></select></div>
+      <div class="fi"><label>รอบอก (นิ้ว)</label><select id="f-size" onchange="showM()"></select></div>
       <div class="fi"><label>จำนวน (ตัว)</label><input id="f-qty" type="number" value="1" min="1" max="99"></div>
     </div>
     <div class="mbox" id="mbox">ℹ เลือกขนาดเพื่อดูรายละเอียด</div>
-    <button class="btn-g" onclick="addOrder()">+ เพิ่มรายการสั่งจอง</button>
+    <div class="btn-row">
+      <button class="btn-g" onclick="addOrder()">+ เพิ่มรายการสั่งจอง</button>
+      <button class="btn-save" onclick="saveData()">💾 บันทึกข้อมูล</button>
+    </div>
+    <div id="saved-list" style="margin-top:12px"></div>
   </div>
 </div>
 
-<!-- LIST -->
+<!-- ===== LIST ===== -->
 <div class="pn" id="pn-list">
   <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-      <div class="sec-title" style="margin:0">📋 รายการทั้งหมด</div>
-      <div style="display:flex;gap:8px">
-        <button class="btn-sm" onclick="expCSV()">⬇ CSV</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:8px;flex-wrap:wrap">
+      <div class="sec" style="margin:0">📋 รายการทั้งหมด</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-sm" onclick="expCSV('all')">⬇ CSV ทั้งหมด</button>
         <button class="btn-sm btn-r" onclick="clrAll()">🗑 ล้างทั้งหมด</button>
       </div>
     </div>
@@ -317,31 +338,61 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
   </div>
 </div>
 
-<!-- REPORT -->
+<!-- ===== REPORT ===== -->
 <div class="pn" id="pn-report">
-  <div class="d2">
-    <div class="card">
-      <div class="sec-title"><span class="chip cm">ชาย</span> สรุปตามขนาด</div>
-      <div class="tw"><table class="rt"><tbody id="rpt-m"></tbody></table></div>
-    </div>
-    <div class="card">
-      <div class="sec-title"><span class="chip cf">หญิง</span> สรุปตามขนาด</div>
-      <div class="tw"><table class="rt"><tbody id="rpt-f"></tbody></table></div>
+  <!-- Export buttons -->
+  <div class="card">
+    <div class="sec">📤 ส่งออกรายงาน</div>
+    <div class="exp-row">
+      <button class="btn-exp btn-exp-g" onclick="expCSV('all')">⬇ ทุกรายการ (CSV)</button>
+      <button class="btn-exp btn-exp-b" onclick="expCSV('meet')">⬇ ลงทะเบียนประชุม (CSV)</button>
+      <button class="btn-exp btn-exp-a" onclick="expCSV('extra')">⬇ สั่งซื้อเพิ่ม + ราคา (CSV)</button>
     </div>
   </div>
+
+  <!-- Report: Meet -->
   <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-      <div class="sec-title" style="margin:0">📊 รายละเอียดทั้งหมด</div>
-      <button class="btn-sm" onclick="expCSV()">⬇ ส่งออก CSV</button>
+    <div class="sec">🗓 ผู้ลงทะเบียนร่วมประชุม</div>
+    <div class="d2">
+      <div>
+        <div style="margin-bottom:.5rem"><span class="chip cm">ชาย</span></div>
+        <div class="tw"><table class="rt"><tbody id="rpt-meet-m"></tbody></table></div>
+      </div>
+      <div>
+        <div style="margin-bottom:.5rem"><span class="chip cf">หญิง</span></div>
+        <div class="tw"><table class="rt"><tbody id="rpt-meet-f"></tbody></table></div>
+      </div>
     </div>
-    <div class="tw"><table class="rt"><tbody id="rpt-all"></tbody></table></div>
+    <div class="tw" style="margin-top:12px"><table class="rt"><tbody id="rpt-meet-all"></tbody></table></div>
+  </div>
+
+  <!-- Report: Extra + Price -->
+  <div class="card">
+    <div class="sec">🛒 ผู้สั่งซื้อเพิ่ม (ไม่ร่วมประชุม)</div>
+    <div class="price-tag">💰 ราคาตัวละ 450 บาท</div>
+    <div class="d2">
+      <div>
+        <div style="margin-bottom:.5rem"><span class="chip cm">ชาย</span></div>
+        <div class="tw"><table class="rt"><tbody id="rpt-ex-m"></tbody></table></div>
+      </div>
+      <div>
+        <div style="margin-bottom:.5rem"><span class="chip cf">หญิง</span></div>
+        <div class="tw"><table class="rt"><tbody id="rpt-ex-f"></tbody></table></div>
+      </div>
+    </div>
+    <!-- รายละเอียดรายบุคคล -->
+    <div class="sec" style="margin-top:1rem">รายละเอียดรายบุคคล (สั่งซื้อเพิ่ม)</div>
+    <div class="tw"><table class="rt"><tbody id="rpt-ex-all"></tbody></table></div>
+    <!-- สรุปแยก รพ.สต. -->
+    <div class="sec" style="margin-top:1rem">สรุปรายงานแยก รพ.สต. (สั่งซื้อเพิ่ม)</div>
+    <div class="tw"><table class="rt"><tbody id="rpt-ex-hosp"></tbody></table></div>
   </div>
 </div>
 
-<!-- SHIRT -->
+<!-- ===== SHIRT ===== -->
 <div class="pn" id="pn-shirt">
   <div class="card">
-    <div class="sec-title">👕 แบบเสื้อสมาคมหมออนามัยสกลนคร</div>
+    <div class="sec">👕 แบบเสื้อสมาคมหมออนามัยสกลนคร</div>
     <img src="shirt.jpg" alt="แบบเสื้อ" style="width:100%;max-width:500px;display:block;margin:0 auto;border-radius:12px">
     <div style="margin-top:1rem;background:#E1F5EE;border-radius:8px;padding:1rem">
       <p style="font-weight:700;color:#0A5C48;margin-bottom:6px">หมายเหตุ</p>
@@ -351,95 +402,122 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
   </div>
 </div>
 
-<!-- SIZE CHART -->
+<!-- ===== SIZE CHART ===== -->
 <div class="pn" id="pn-size">
   <div class="card">
-    <div class="sec-title"><span class="chip cm">ชาย</span> ตารางขนาดเสื้อ (หน่วย: นิ้ว)</div>
+    <div class="sec"><span class="chip cm">ชาย</span> ตารางขนาดเสื้อ (หน่วย: นิ้ว)</div>
     <div class="tw"><table class="st">
-      <thead><tr><th>ขนาด</th><th>S</th><th>M</th><th>L</th><th>XL</th><th>2XL</th><th>3XL</th><th>4XL</th><th>5XL</th><th>6XL</th><th>7XL</th></tr></thead>
-      <tbody>
-        <tr><td class="rl">รอบอก</td><td>38</td><td>40</td><td>42</td><td>44</td><td>46</td><td>48</td><td>50</td><td>52</td><td>54</td><td>56</td></tr>
-        <tr><td class="rl">ความยาว</td><td>26</td><td>26.5</td><td>27</td><td>28</td><td>29</td><td>30</td><td>30</td><td>30</td><td>30</td><td>31</td></tr>
-      </tbody>
+      <thead><tr><th>รอบอก</th><th>38</th><th>40</th><th>42</th><th>44</th><th>46</th><th>48</th><th>50</th><th>52</th><th>54</th><th>56</th></tr></thead>
+      <tbody><tr><td class="rl">ความยาว</td><td>26</td><td>26.5</td><td>27</td><td>28</td><td>29</td><td>30</td><td>30</td><td>30</td><td>30</td><td>31</td></tr></tbody>
     </table></div>
   </div>
   <div class="card">
-    <div class="sec-title"><span class="chip cf">หญิง</span> ตารางขนาดเสื้อ (หน่วย: นิ้ว)</div>
+    <div class="sec"><span class="chip cf">หญิง</span> ตารางขนาดเสื้อ (หน่วย: นิ้ว)</div>
     <div class="tw"><table class="st">
-      <thead><tr><th>ขนาด</th><th>S</th><th>M</th><th>L</th><th>XL</th><th>2XL</th><th>3XL</th><th>4XL</th><th>5XL</th><th>6XL</th><th>7XL</th><th>8XL</th></tr></thead>
-      <tbody>
-        <tr><td class="rl">รอบอก</td><td>34</td><td>36</td><td>38</td><td>40</td><td>42</td><td>44</td><td>46</td><td>48</td><td>50</td><td>52</td><td>54</td></tr>
-        <tr><td class="rl">ความยาว</td><td>22.5</td><td>23</td><td>23</td><td>24</td><td>25</td><td>26</td><td>26</td><td>26</td><td>26.5</td><td>26.5</td><td>27</td></tr>
-      </tbody>
+      <thead><tr><th>รอบอก</th><th>34</th><th>36</th><th>38</th><th>40</th><th>42</th><th>44</th><th>46</th><th>48</th><th>50</th><th>52</th><th>54</th></tr></thead>
+      <tbody><tr><td class="rl">ความยาว</td><td>22.5</td><td>23</td><td>23</td><td>24</td><td>25</td><td>26</td><td>26</td><td>26</td><td>26.5</td><td>26.5</td><td>27</td></tr></tbody>
     </table></div>
   </div>
 </div>
 
-</div><!-- end wrap -->
+</div><!-- wrap -->
 
 <script>
+var PRICE=450;
 var HOSP=['รพ.สต.บ้านดงมะไฟสามัคคี','รพ.สต.บ้านฮางโฮง','รพ.สต.ธาตุเชิงชุม','รพสต.บ้านหนองปลาน้อย','รพสต.พังขว้างใต้','รพสต.บ้านโนนหอม','รพ.สต.นาคำ','รพ.สต.บ้านทับสอ','รพ.สต.บ้านดงขุมข้าว','รพ.สต.นาขาม','รพ.สต.บ้านโคกก่องใหญ่','รพ.สต.บ้านลาดกะเฌอ','รพ.สต.บ้านแมด','รพ.สต.บ้านม่วงลาย','รพสต.ดงพัฒนา','รพสต.คูสนาม','รพสต.บ้านเชียงเครือวัดใหญ่','รพ.สต.หนองลาดใต้','รพ.สต.ดอนแคนใต้','รพ.สต.บ้านดงมะไฟ','รพ.สต.บ้านโคกเลาะ','รพ.สต.บ้านหนองสนม','รพ.สต.บ้านหนองไผ่','รพ.สต.บ้านสร้างแก้วสมานมิตร'];
-var SD={M:{lb:['S','M','L','XL','2XL','3XL','4XL','5XL','6XL','7XL'],ch:[38,40,42,44,46,48,50,52,54,56],ln:[26,26.5,27,28,29,30,30,30,30,31]},F:{lb:['S','M','L','XL','2XL','3XL','4XL','5XL','6XL','7XL','8XL'],ch:[34,36,38,40,42,44,46,48,50,52,54],ln:[22.5,23,23,24,25,26,26,26,26.5,26.5,27]}};
+var SD={
+  M:{ch:[38,40,42,44,46,48,50,52,54,56],ln:[26,26.5,27,28,29,30,30,30,30,31]},
+  F:{ch:[34,36,38,40,42,44,46,48,50,52,54],ln:[22.5,23,23,24,25,26,26,26,26.5,26.5,27]}
+};
 var orders=[];
 try{orders=JSON.parse(localStorage.getItem('shirtOrders')||'[]');}catch(e){orders=[];}
 var otyp='meet',editId=null,curH=null;
+var pendingList=[];
 
-// Init filter dropdown
+// Init filter
 var fd=document.getElementById('fl-d');
 HOSP.forEach(function(h){var o=document.createElement('option');o.value=h;o.textContent=h;fd.appendChild(o);});
 
 function sv(){try{localStorage.setItem('shirtOrders',JSON.stringify(orders));}catch(e){}}
-
-function chkOth(){
-  document.getElementById('oth-wrap').style.display=document.getElementById('f-dept').value==='__oth__'?'block':'none';
-}
-
+function fmt(n){return n.toLocaleString();}
+function chkOth(){document.getElementById('oth-wrap').style.display=document.getElementById('f-dept').value==='__oth__'?'block':'none';}
 function setTyp(t){
   otyp=t;
   document.getElementById('t-meet').className='to'+(t==='meet'?' m-on':'');
   document.getElementById('t-extra').className='to'+(t==='extra'?' e-on':'');
 }
-
 function syncSz(){
   var g=document.getElementById('f-gender').value,d=SD[g],s=document.getElementById('f-size');
   s.innerHTML='';
-  d.lb.forEach(function(l,i){var o=document.createElement('option');o.value=i;o.textContent=l+' — รอบอก '+d.ch[i]+'"';s.appendChild(o);});
+  d.ch.forEach(function(c,i){var o=document.createElement('option');o.value=i;o.textContent=c+'" (ยาว '+d.ln[i]+'")';s.appendChild(o);});
   showM();
 }
-
 function showM(){
   var g=document.getElementById('f-gender').value,i=parseInt(document.getElementById('f-size').value)||0,d=SD[g];
-  document.getElementById('mbox').textContent='ℹ ขนาด '+d.lb[i]+' | รอบอก '+d.ch[i]+'" | ความยาว '+d.ln[i]+'"';
+  document.getElementById('mbox').textContent='ℹ รอบอก '+d.ch[i]+'" | ความยาว '+d.ln[i]+'"';
 }
-
-function getDept(){
-  var v=document.getElementById('f-dept').value;
-  return v==='__oth__'?document.getElementById('f-oth').value.trim():v;
+function getDept(){var v=document.getElementById('f-dept').value;return v==='__oth__'?document.getElementById('f-oth').value.trim():v;}
+function getFullName(){
+  var pre=document.getElementById('f-prefix').value;
+  var fn=document.getElementById('f-fname').value.trim();
+  var ln=document.getElementById('f-lname').value.trim();
+  return pre+fn+(ln?' '+ln:'');
 }
 
 function addOrder(){
-  var name=document.getElementById('f-name').value.trim();
+  var name=getFullName();
+  var fname=document.getElementById('f-fname').value.trim();
   var dept=getDept();
   var phone=document.getElementById('f-phone').value.trim();
-  if(!name){document.getElementById('f-name').focus();showToast('กรุณากรอกชื่อ-นามสกุล',true);return;}
+  if(!fname){document.getElementById('f-fname').focus();showToast('กรุณากรอกชื่อ',true);return;}
   if(!dept){document.getElementById('f-dept').focus();showToast('กรุณาเลือกหน่วยบริการ',true);return;}
   var g=document.getElementById('f-gender').value;
   var si=parseInt(document.getElementById('f-size').value)||0;
   var qty=Math.max(1,parseInt(document.getElementById('f-qty').value)||1);
   var d=SD[g];
-  orders.push({id:Date.now(),name:name,phone:phone,dept:dept,g:g,si:si,lb:d.lb[si],ch:d.ch[si],ln:d.ln[si],qty:qty,type:otyp});
-  sv();
-  document.getElementById('f-name').value='';
+  var item={id:Date.now(),name:name,phone:phone,dept:dept,g:g,si:si,ch:d.ch[si],ln:d.ln[si],qty:qty,type:otyp};
+  pendingList.push(item);
+  renderPending();
+  document.getElementById('f-fname').value='';
+  document.getElementById('f-lname').value='';
   document.getElementById('f-phone').value='';
   document.getElementById('f-qty').value=1;
+  showToast('เพิ่ม "'+name+'" ลงรายการรอบันทึกแล้ว กดปุ่ม "บันทึกข้อมูล" เพื่อยืนยัน',false);
+}
+
+function renderPending(){
+  var el=document.getElementById('saved-list');
+  if(!pendingList.length){el.innerHTML='';return;}
+  el.innerHTML='<div style="background:#fef3c7;border-radius:8px;padding:10px 14px;margin-top:8px">'
+    +'<div style="font-size:12px;font-weight:700;color:#B45309;margin-bottom:8px">⏳ รายการรอบันทึก ('+pendingList.length+' รายการ)</div>'
+    +pendingList.map(function(o,i){
+      return '<div style="font-size:12px;color:#374151;padding:4px 0;border-bottom:1px solid #fde68a;display:flex;justify-content:space-between;align-items:center">'
+        +'<span>'+o.name+' | '+(o.g==='M'?'ชาย':'หญิง')+' รอบอก '+o.ch+'" | '+o.qty+' ตัว</span>'
+        +'<button onclick="removePending('+i+')" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:14px">✕</button>'
+        +'</div>';
+    }).join('')
+    +'</div>';
+}
+
+function removePending(i){pendingList.splice(i,1);renderPending();}
+
+function saveData(){
+  if(!pendingList.length){showToast('ไม่มีรายการรอบันทึก กดปุ่ม "เพิ่มรายการ" ก่อน',true);return;}
+  pendingList.forEach(function(o){orders.push(o);});
+  sv();
+  var n=pendingList.length;
+  pendingList=[];
+  renderPending();
   upd();
-  showToast('เพิ่ม "'+name+'" สำเร็จ — '+d.lb[si]+' '+qty+' ตัว',false);
+  showToast('บันทึกสำเร็จ '+n+' รายการ!',false);
 }
 
 function upd(){
   var t=orders.reduce(function(s,o){return s+o.qty;},0);
+  var money=orders.filter(function(o){return o.type==='extra';}).reduce(function(s,o){return s+o.qty*PRICE;},0);
   document.getElementById('cntb').textContent=orders.length;
   document.getElementById('nstat').textContent='รวม '+t+' ตัว | '+orders.length+' คน';
+  document.getElementById('d-money').textContent=fmt(money);
 }
 
 function goTab(id){
@@ -448,8 +526,7 @@ function goTab(id){
   document.getElementById('pn-'+id).classList.add('on');
   var tabs=['dash','entry','list','report','shirt','size'];
   document.querySelectorAll('.tab')[tabs.indexOf(id)].classList.add('on');
-  // Close modals when switching tabs
-  closeHospModal();closeEditModal();
+  closeHM();closeEM();
   if(id==='dash')renderDash();
   if(id==='list')renderList();
   if(id==='report')renderReport();
@@ -460,19 +537,19 @@ function renderDash(){
   var male=orders.filter(function(o){return o.g==='M';}).reduce(function(s,o){return s+o.qty;},0);
   var meet=orders.filter(function(o){return o.type==='meet';}).reduce(function(s,o){return s+o.qty;},0);
   var extra=tot-meet;
+  var money=orders.filter(function(o){return o.type==='extra';}).reduce(function(s,o){return s+o.qty*PRICE;},0);
   document.getElementById('d-tot').textContent=tot;
   document.getElementById('d-m').textContent=male;
   document.getElementById('d-f').textContent=tot-male;
   document.getElementById('d-p').textContent=orders.length;
   document.getElementById('d-meet').textContent=meet;
   document.getElementById('d-ex').textContent=extra;
-  var ds={};
-  orders.forEach(function(o){if(!ds[o.dept])ds[o.dept]=0;ds[o.dept]+=o.qty;});
+  document.getElementById('d-money').textContent=fmt(money);
+  var ds={};orders.forEach(function(o){if(!ds[o.dept])ds[o.dept]=0;ds[o.dept]+=o.qty;});
   var done=HOSP.filter(function(h){return ds[h];}).length;
   document.getElementById('d-h').textContent=done+'/24';
   document.getElementById('d-hdone').textContent=done+' แห่ง สั่งแล้ว';
   document.getElementById('d-hnone').textContent=(24-done)+' แห่ง ยังไม่สั่ง';
-  // Type bars
   var tb=document.getElementById('typebars');
   if(!tot){tb.innerHTML='<p class="emp">ยังไม่มีข้อมูล</p>';}
   else{
@@ -480,67 +557,50 @@ function renderDash(){
     tb.innerHTML='<div class="br"><span class="bl">ลงทะเบียนประชุม</span><div class="bw"><div class="bp" style="width:'+pm+'%;background:#1D9E75"></div></div><span class="bv" style="color:#0A5C48">'+meet+'</span></div>'
     +'<div class="br"><span class="bl">สั่งซื้อเพิ่ม</span><div class="bw"><div class="bp" style="width:'+pe+'%;background:#B45309"></div></div><span class="bv" style="color:#B45309">'+extra+'</span></div>';
   }
-  // Top sizes
-  var sm={};
-  orders.forEach(function(o){var k=o.g+'-'+o.si;if(!sm[k])sm[k]={lb:(o.g==='M'?'ชาย':'หญิง')+' '+o.lb,qty:0,g:o.g};sm[k].qty+=o.qty;});
+  var sm={};orders.forEach(function(o){var k=o.g+'-'+o.si;if(!sm[k])sm[k]={lb:(o.g==='M'?'ชาย':'หญิง')+' '+o.ch+'"',qty:0,g:o.g};sm[k].qty+=o.qty;});
   var tops=Object.values(sm).sort(function(a,b){return b.qty-a.qty;}).slice(0,5);
   var mx=tops.length?tops[0].qty:1;
   var ts=document.getElementById('topbars');
   if(!tops.length){ts.innerHTML='<p class="emp">ยังไม่มีข้อมูล</p>';}
-  else ts.innerHTML=tops.map(function(r){
-    return '<div class="br"><span class="bl">'+r.lb+'</span><div class="bw"><div class="bp" style="width:'+Math.round(r.qty/mx*100)+'%;background:'+(r.g==='M'?'#3B82F6':'#7C3AED')+'"></div></div><span class="bv">'+r.qty+'</span></div>';
-  }).join('');
-  // Hosp grid
+  else ts.innerHTML=tops.map(function(r){return '<div class="br"><span class="bl">'+r.lb+'</span><div class="bw"><div class="bp" style="width:'+Math.round(r.qty/mx*100)+'%;background:'+(r.g==='M'?'#3B82F6':'#7C3AED')+'"></div></div><span class="bv">'+r.qty+'</span></div>';}).join('');
   var hg=document.getElementById('hosp-grid');
   hg.innerHTML=HOSP.map(function(h){
-    var qty=ds[h]||0;
-    var safeH=h.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    return '<div class="hi'+(qty?' has':'')+'" onclick="openHosp(\''+safeH+'\')">'
-      +'<div class="hd '+(qty?'dy':'dn')+'"></div>'
-      +'<div class="hn">'+h+'</div>'
-      +(qty?'<span class="hc">'+qty+' ตัว</span>':'<span style="font-size:11px;color:#9ca3af">ยังไม่สั่ง</span>')
-      +'</div>';
+    var qty=ds[h]||0,s=h.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return '<div class="hi'+(qty?' has':'')+'" onclick="openHM(\''+s+'\')">'
+      +'<div class="hd '+(qty?'dy':'dn')+'"></div><div class="hn">'+h+'</div>'
+      +(qty?'<span class="hc">'+qty+' ตัว</span>':'<span style="font-size:11px;color:#9ca3af">ยังไม่สั่ง</span>')+'</div>';
   }).join('');
 }
 
-function openHosp(name){
+function openHM(name){
   curH=name;
   var rows=orders.filter(function(o){return o.dept===name;});
   document.getElementById('hosp-title').textContent=name+' — '+rows.length+' คน';
   var el=document.getElementById('hosp-body');
   if(!rows.length){el.innerHTML='<p class="emp">📋 ยังไม่มีรายการ</p>';}
-  else{
-    el.innerHTML=rows.map(function(o){
-      return '<div class="er">'
-        +'<div class="eav '+(o.g==='M'?'avm':'avf')+'">'+o.name.charAt(0)+'</div>'
-        +'<div class="ein">'
-        +'<div class="enm">'+o.name+'</div>'
-        +'<div class="emt">📞 '+(o.phone||'-')+' | '+(o.g==='M'?'ชาย':'หญิง')+' ไซส์ '+o.lb+' ('+o.ch+'") | '+o.qty+' ตัว | '+(o.type==='meet'?'ลงทะเบียนประชุม':'สั่งซื้อเพิ่ม')+'</div>'
-        +'<div class="ebt">'
-        +'<button class="bed" onclick="openEdit('+o.id+')">✏ แก้ไข</button>'
-        +'<button class="bde" onclick="delFH('+o.id+')">🗑 ลบ</button>'
-        +'</div></div></div>';
-    }).join('');
-  }
+  else el.innerHTML=rows.map(function(o){
+    return '<div class="er"><div class="eav '+(o.g==='M'?'avm':'avf')+'">'+o.name.charAt(0)+'</div>'
+      +'<div class="ein"><div class="enm">'+o.name+'</div>'
+      +'<div class="emt">📞 '+(o.phone||'-')+' | '+(o.g==='M'?'ชาย':'หญิง')+' รอบอก '+o.ch+'" | '+o.qty+' ตัว'+(o.type==='extra'?' | 💰 '+(o.qty*PRICE).toLocaleString()+' บาท':'')+'</div>'
+      +'<div class="ebt"><button class="bed" onclick="openEM('+o.id+')">✏ แก้ไข</button><button class="bde" onclick="delFH('+o.id+')">🗑 ลบ</button></div></div></div>';
+  }).join('');
   document.getElementById('hosp-modal').classList.add('on');
   document.getElementById('hosp-modal').scrollIntoView({behavior:'smooth',block:'start'});
 }
+function closeHM(){document.getElementById('hosp-modal').classList.remove('on');curH=null;}
+function delFH(id){if(!confirm('ลบรายการนี้?'))return;orders=orders.filter(function(o){return o.id!==id;});sv();upd();if(curH)openHM(curH);renderDash();}
 
-function closeHospModal(){document.getElementById('hosp-modal').classList.remove('on');curH=null;}
-
-function delFH(id){
-  if(!confirm('ลบรายการนี้?'))return;
-  orders=orders.filter(function(o){return o.id!==id;});
-  sv();upd();
-  if(curH)openHosp(curH);
-  renderDash();
-}
-
-function openEdit(id){
-  var o=orders.find(function(x){return x.id===id;});
-  if(!o)return;
-  editId=id;
-  document.getElementById('e-name').value=o.name;
+function openEM(id){
+  var o=orders.find(function(x){return x.id===id;});if(!o)return;editId=id;
+  // Parse prefix and name
+  var pre='นาย',nm=o.name;
+  if(nm.startsWith('นางสาว')){pre='นางสาว';nm=nm.slice(6);}
+  else if(nm.startsWith('นาง')){pre='นาง';nm=nm.slice(3);}
+  else if(nm.startsWith('นาย')){pre='นาย';nm=nm.slice(3);}
+  var parts=nm.trim().split(' ');
+  document.getElementById('e-prefix').value=pre;
+  document.getElementById('e-fname').value=parts[0]||'';
+  document.getElementById('e-lname').value=parts.slice(1).join(' ')||'';
   document.getElementById('e-phone').value=o.phone||'';
   document.getElementById('e-dept').value=o.dept;
   document.getElementById('e-gender').value=o.g;
@@ -550,129 +610,139 @@ function openEdit(id){
   document.getElementById('edit-modal').classList.add('on');
   document.getElementById('edit-modal').scrollIntoView({behavior:'smooth',block:'start'});
 }
-
 function syncESz(g,si){
   g=g||document.getElementById('e-gender').value;
   var d=SD[g],s=document.getElementById('e-size');
   s.innerHTML='';
-  d.lb.forEach(function(l,i){var o=document.createElement('option');o.value=i;o.textContent=l+' — รอบอก '+d.ch[i]+'"';s.appendChild(o);});
+  d.ch.forEach(function(c,i){var o=document.createElement('option');o.value=i;o.textContent=c+'" (ยาว '+d.ln[i]+'")';s.appendChild(o);});
   if(si!==undefined)s.value=si;
 }
-
 function saveEdit(){
-  var o=orders.find(function(x){return x.id===editId;});
-  if(!o)return;
+  var o=orders.find(function(x){return x.id===editId;});if(!o)return;
+  var pre=document.getElementById('e-prefix').value;
+  var fn=document.getElementById('e-fname').value.trim();
+  var ln=document.getElementById('e-lname').value.trim();
   var g=document.getElementById('e-gender').value;
   var si=parseInt(document.getElementById('e-size').value)||0;
   var d=SD[g];
-  o.name=document.getElementById('e-name').value.trim()||o.name;
+  o.name=pre+fn+(ln?' '+ln:'');
   o.phone=document.getElementById('e-phone').value.trim();
   o.dept=document.getElementById('e-dept').value.trim()||o.dept;
-  o.g=g;o.si=si;o.lb=d.lb[si];o.ch=d.ch[si];o.ln=d.ln[si];
+  o.g=g;o.si=si;o.ch=d.ch[si];o.ln=d.ln[si];
   o.qty=Math.max(1,parseInt(document.getElementById('e-qty').value)||1);
   o.type=document.getElementById('e-type').value;
-  sv();closeEditModal();showToast('แก้ไข "'+o.name+'" สำเร็จ',false);
-  upd();renderDash();
+  sv();closeEM();showToast('แก้ไข "'+o.name+'" สำเร็จ',false);upd();renderDash();
 }
-
-function closeEditModal(){document.getElementById('edit-modal').classList.remove('on');editId=null;}
+function closeEM(){document.getElementById('edit-modal').classList.remove('on');editId=null;}
 
 function renderList(){
-  var dv=document.getElementById('fl-d').value;
-  var gv=document.getElementById('fl-g').value;
-  var tv=document.getElementById('fl-t').value;
+  var dv=document.getElementById('fl-d').value,gv=document.getElementById('fl-g').value,tv=document.getElementById('fl-t').value;
   var f=orders.filter(function(o){return(!dv||o.dept===dv)&&(!gv||o.g===gv)&&(!tv||o.type===tv);});
   var el=document.getElementById('ol');
-  if(!f.length){el.innerHTML='<p class="emp">📋 ไม่พบรายการ</p>';return;}
+  if(!f.length){el.innerHTML='<p class="emp">ไม่พบรายการ</p>';return;}
   el.innerHTML=f.map(function(o){
-    return '<div class="oi">'
-      +'<div class="av '+(o.g==='M'?'avm':'avf')+'">'+o.name.charAt(0)+'</div>'
-      +'<div class="oin">'
-      +'<div class="oname">'+o.name+'</div>'
-      +'<div class="ometa">'+o.dept+' | 📞 '+(o.phone||'-')+' | '+(o.type==='meet'?'ลงทะเบียนประชุม':'สั่งซื้อเพิ่ม')+'</div>'
-      +'</div>'
-      +'<div style="text-align:right;flex-shrink:0;margin-right:8px">'
-      +'<div><span class="osiz">'+(o.g==='M'?'ชาย':'หญิง')+' '+o.lb+'</span></div>'
-      +'<div class="oqt">'+o.qty+' ตัว | '+o.ch+'"</div>'
-      +'</div>'
-      +'<button class="btn-sm" style="margin-right:4px;padding:4px 8px" onclick="openEditList('+o.id+')">✏</button>'
-      +'<button class="bdl" onclick="delOrd('+o.id+')">✕</button>'
-      +'</div>';
+    return '<div class="oi"><div class="av '+(o.g==='M'?'avm':'avf')+'">'+o.name.charAt(0)+'</div>'
+      +'<div class="oin"><div class="oname">'+o.name+'</div>'
+      +'<div class="ometa">'+o.dept+' | 📞 '+(o.phone||'-')+' | '+(o.type==='meet'?'ลงทะเบียนประชุม':'🛒 สั่งซื้อเพิ่ม')+'</div></div>'
+      +'<div style="text-align:right;flex-shrink:0;margin-right:8px"><span class="osiz">'+(o.g==='M'?'ชาย':'หญิง')+' '+o.ch+'"</span>'
+      +(o.type==='extra'?'<div style="font-size:11px;color:#B45309;font-weight:700;margin-top:2px">'+fmt(o.qty*PRICE)+' บาท</div>':'')
+      +'<div style="font-size:11px;color:#6b7280">'+o.qty+' ตัว</div></div>'
+      +'<button class="btn-sm" style="padding:4px 8px;margin-right:4px" onclick="openEMfromList('+o.id+')">✏</button>'
+      +'<button class="bdl" onclick="delOrd('+o.id+')">✕</button></div>';
   }).join('');
 }
+function openEMfromList(id){goTab('dash');setTimeout(function(){openEM(id);},100);}
+function delOrd(id){orders=orders.filter(function(o){return o.id!==id;});sv();upd();renderList();}
+function clrAll(){if(!orders.length)return;if(confirm('ล้างรายการทั้งหมด?')){orders=[];sv();upd();renderList();}}
 
-function openEditList(id){
-  // Switch to dash tab first to show edit modal
-  goTab('dash');
-  setTimeout(function(){openEdit(id);},100);
-}
-
-function delOrd(id){
-  orders=orders.filter(function(o){return o.id!==id;});
-  sv();upd();renderList();
-}
-
-function clrAll(){
-  if(!orders.length)return;
-  if(confirm('ล้างรายการทั้งหมด?')){orders=[];sv();upd();renderList();}
+function makeSizeSummary(rows,g){
+  if(!rows.length)return '<tr><td colspan="4" class="emp">ไม่มีข้อมูล</td></tr>';
+  var map={};
+  rows.filter(function(o){return o.g===g;}).forEach(function(o){if(!map[o.si])map[o.si]={ch:o.ch,ln:o.ln,qty:0};map[o.si].qty+=o.qty;});
+  var d=SD[g];
+  var vals=Object.values(map).sort(function(a,b){return a.ch-b.ch;});
+  if(!vals.length)return '<tr><td colspan="4" class="emp">ไม่มีข้อมูล</td></tr>';
+  var sum=vals.reduce(function(s,r){return s+r.qty;},0);
+  return '<tr><th>รอบอก</th><th>ความยาว</th><th class="num">จำนวน</th></tr>'
+    +vals.map(function(r){return '<tr><td>'+r.ch+'"</td><td>'+r.ln+'"</td><td class="num">'+r.qty+'</td></tr>';}).join('')
+    +'<tfoot><tr><td colspan="2">รวม</td><td class="num">'+sum+'</td></tr></tfoot>';
 }
 
 function renderReport(){
-  ['M','F'].forEach(function(g){
-    var rows=orders.filter(function(o){return o.g===g;});
-    var id=g==='M'?'rpt-m':'rpt-f';
-    var el=document.getElementById(id);
-    if(!rows.length){el.innerHTML='<tr><td colspan="6" class="emp">ไม่มีข้อมูล</td></tr>';return;}
-    var map={};
-    rows.forEach(function(o){if(!map[o.si])map[o.si]={lb:o.lb,ch:o.ch,ln:o.ln,meet:0,extra:0};map[o.si][o.type]+=o.qty;});
-    var sum=rows.reduce(function(s,o){return s+o.qty;},0);
-    var mq=rows.filter(function(o){return o.type==='meet';}).reduce(function(s,o){return s+o.qty;},0);
-    var eq=rows.filter(function(o){return o.type==='extra';}).reduce(function(s,o){return s+o.qty;},0);
-    el.innerHTML='<tr><th>ขนาด</th><th>รอบอก</th><th>ยาว</th><th>ประชุม</th><th>เพิ่ม</th><th>รวม</th></tr>'
-      +Object.values(map).sort(function(a,b){return a.ch-b.ch;}).map(function(r){
-        return '<tr><td>'+r.lb+'</td><td>'+r.ch+'"</td><td>'+r.ln+'"</td><td>'+(r.meet||0)+'</td><td>'+(r.extra||0)+'</td><td style="font-weight:700;color:#0A5C48">'+((r.meet||0)+(r.extra||0))+'</td></tr>';
-      }).join('')
-      +'<tfoot><tr><td colspan="3">รวม</td><td>'+mq+'</td><td>'+eq+'</td><td>'+sum+'</td></tr></tfoot>';
-  });
-  var all=document.getElementById('rpt-all');
-  if(!orders.length){all.innerHTML='<tr><td colspan="8" class="emp">ยังไม่มีรายการ</td></tr>';return;}
-  all.innerHTML='<tr><th>#</th><th>ชื่อ-นามสกุล</th><th>โทรศัพท์</th><th>หน่วยบริการ</th><th>เพศ</th><th>ประเภท</th><th>ขนาด</th><th>จำนวน</th></tr>'
-    +orders.map(function(o,i){
-      return '<tr><td style="color:#9ca3af">'+(i+1)+'</td><td style="font-weight:700">'+o.name+'</td>'
-        +'<td style="font-size:12px">'+(o.phone||'-')+'</td>'
-        +'<td style="font-size:12px;color:#6b7280">'+o.dept+'</td>'
-        +'<td><span class="chip '+(o.g==='M'?'cm':'cf')+'">'+(o.g==='M'?'ชาย':'หญิง')+'</span></td>'
-        +'<td><span class="chip '+(o.type==='meet'?'cmt':'cex')+'">'+(o.type==='meet'?'ประชุม':'เพิ่ม')+'</span></td>'
-        +'<td>'+o.lb+' ('+o.ch+'")</td><td style="font-weight:700">'+o.qty+'</td></tr>';
-    }).join('');
+  var meet=orders.filter(function(o){return o.type==='meet';});
+  var extra=orders.filter(function(o){return o.type==='extra';});
+
+  // MEET size summary
+  document.getElementById('rpt-meet-m').innerHTML=makeSizeSummary(meet,'M');
+  document.getElementById('rpt-meet-f').innerHTML=makeSizeSummary(meet,'F');
+
+  // MEET detail
+  var mm=document.getElementById('rpt-meet-all');
+  if(!meet.length){mm.innerHTML='<tr><td colspan="6" class="emp">ไม่มีข้อมูล</td></tr>';}
+  else mm.innerHTML='<tr><th>#</th><th>ชื่อ-สกุล</th><th>โทรศัพท์</th><th>หน่วยบริการ</th><th>เพศ</th><th>รอบอก</th><th class="num">จำนวน</th></tr>'
+    +meet.map(function(o,i){return '<tr><td style="color:#9ca3af">'+(i+1)+'</td><td style="font-weight:700">'+o.name+'</td><td>'+(o.phone||'-')+'</td><td style="font-size:12px">'+o.dept+'</td><td><span class="chip '+(o.g==='M'?'cm':'cf')+'">'+(o.g==='M'?'ชาย':'หญิง')+'</span></td><td>'+o.ch+'"</td><td class="num">'+o.qty+'</td></tr>';}).join('');
+
+  // EXTRA size summary
+  document.getElementById('rpt-ex-m').innerHTML=makeSizeSummary(extra,'M');
+  document.getElementById('rpt-ex-f').innerHTML=makeSizeSummary(extra,'F');
+
+  // EXTRA individual
+  var ea=document.getElementById('rpt-ex-all');
+  if(!extra.length){ea.innerHTML='<tr><td colspan="8" class="emp">ไม่มีข้อมูล</td></tr>';}
+  else{
+    var etot=extra.reduce(function(s,o){return s+o.qty*PRICE;},0);
+    ea.innerHTML='<tr><th>#</th><th>ชื่อ-สกุล</th><th>โทรศัพท์</th><th>หน่วยบริการ</th><th>เพศ</th><th>รอบอก</th><th class="num">จำนวน</th><th class="num">เงิน (บาท)</th></tr>'
+      +extra.map(function(o,i){return '<tr><td style="color:#9ca3af">'+(i+1)+'</td><td style="font-weight:700">'+o.name+'</td><td>'+(o.phone||'-')+'</td><td style="font-size:12px">'+o.dept+'</td><td><span class="chip '+(o.g==='M'?'cm':'cf')+'">'+(o.g==='M'?'ชาย':'หญิง')+'</span></td><td>'+o.ch+'"</td><td class="num">'+o.qty+'</td><td class="num" style="font-weight:700;color:#B45309">'+fmt(o.qty*PRICE)+'</td></tr>';}).join('')
+      +'<tfoot><tr><td colspan="6">รวมทั้งหมด</td><td class="num">'+extra.reduce(function(s,o){return s+o.qty;},0)+'</td><td class="num">'+fmt(etot)+'</td></tr></tfoot>';
+  }
+
+  // EXTRA by hosp
+  var eh=document.getElementById('rpt-ex-hosp');
+  var hmap={};
+  extra.forEach(function(o){if(!hmap[o.dept])hmap[o.dept]={qty:0,money:0};hmap[o.dept].qty+=o.qty;hmap[o.dept].money+=o.qty*PRICE;});
+  var hospKeys=Object.keys(hmap);
+  if(!hospKeys.length){eh.innerHTML='<tr><td colspan="4" class="emp">ไม่มีข้อมูล</td></tr>';}
+  else{
+    var htot=hospKeys.reduce(function(s,k){return s+hmap[k].qty;},0);
+    var hmoney=hospKeys.reduce(function(s,k){return s+hmap[k].money;},0);
+    eh.innerHTML='<tr><th>#</th><th>หน่วยบริการ</th><th class="num">จำนวน (ตัว)</th><th class="num">รวมเงิน (บาท)</th></tr>'
+      +hospKeys.map(function(k,i){return '<tr><td style="color:#9ca3af">'+(i+1)+'</td><td style="font-weight:600">'+k+'</td><td class="num">'+hmap[k].qty+'</td><td class="num" style="font-weight:700;color:#B45309">'+fmt(hmap[k].money)+'</td></tr>';}).join('')
+      +'<tfoot><tr><td colspan="2">รวมทั้งหมด</td><td class="num">'+htot+'</td><td class="num">'+fmt(hmoney)+'</td></tr></tfoot>';
+  }
 }
 
-function expCSV(){
-  if(!orders.length)return;
-  var rows=[['ลำดับ','ชื่อ-นามสกุล','โทรศัพท์','หน่วยบริการ','เพศ','ประเภทการสั่ง','ขนาด','รอบอก(นิ้ว)','ความยาว(นิ้ว)','จำนวน(ตัว)']];
-  orders.forEach(function(o,i){
-    rows.push([i+1,o.name,o.phone||'',o.dept,o.g==='M'?'ชาย':'หญิง',o.type==='meet'?'ลงทะเบียนประชุม':'สั่งซื้อเพิ่ม',o.lb,o.ch,o.ln,o.qty]);
-  });
+function expCSV(type){
+  var rows,fn;
+  if(type==='meet'){
+    var data=orders.filter(function(o){return o.type==='meet';});
+    rows=[['ลำดับ','คำนำหน้า+ชื่อ-สกุล','โทรศัพท์','หน่วยบริการ','เพศ','รอบอก(นิ้ว)','ความยาว(นิ้ว)','จำนวน(ตัว)']];
+    data.forEach(function(o,i){rows.push([i+1,o.name,o.phone||'',o.dept,o.g==='M'?'ชาย':'หญิง',o.ch,o.ln,o.qty]);});
+    fn='รายงานลงทะเบียนประชุม_'+new Date().toISOString().slice(0,10)+'.csv';
+  } else if(type==='extra'){
+    var data=orders.filter(function(o){return o.type==='extra';});
+    rows=[['ลำดับ','คำนำหน้า+ชื่อ-สกุล','โทรศัพท์','หน่วยบริการ','เพศ','รอบอก(นิ้ว)','ความยาว(นิ้ว)','จำนวน(ตัว)','ราคา/ตัว(บาท)','รวมเงิน(บาท)']];
+    data.forEach(function(o,i){rows.push([i+1,o.name,o.phone||'',o.dept,o.g==='M'?'ชาย':'หญิง',o.ch,o.ln,o.qty,PRICE,o.qty*PRICE]);});
+    fn='รายงานสั่งซื้อเพิ่ม_'+new Date().toISOString().slice(0,10)+'.csv';
+  } else {
+    rows=[['ลำดับ','คำนำหน้า+ชื่อ-สกุล','โทรศัพท์','หน่วยบริการ','เพศ','ประเภท','รอบอก(นิ้ว)','ความยาว(นิ้ว)','จำนวน(ตัว)','ราคา/ตัว','รวมเงิน']];
+    orders.forEach(function(o,i){rows.push([i+1,o.name,o.phone||'',o.dept,o.g==='M'?'ชาย':'หญิง',o.type==='meet'?'ลงทะเบียนประชุม':'สั่งซื้อเพิ่ม',o.ch,o.ln,o.qty,o.type==='extra'?PRICE:0,o.type==='extra'?o.qty*PRICE:0]);});
+    fn='รายงานทั้งหมด_'+new Date().toISOString().slice(0,10)+'.csv';
+  }
+  if(rows.length<=1){showToast('ไม่มีข้อมูลสำหรับส่งออก',true);return;}
   var csv='\uFEFF'+rows.map(function(r){return r.map(function(v){return '"'+v+'"';}).join(',');}).join('\n');
-  var a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download='shirt_order_'+new Date().toISOString().slice(0,10)+'.csv';
-  a.click();
+  var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=fn;a.click();
 }
 
 var tTm;
 function showToast(msg,isErr){
   var t=document.getElementById('toast');
-  t.className='on'+(isErr?' err':'');
+  t.className=isErr?'err':'ok';
   document.getElementById('tmsg').textContent=msg;
   clearTimeout(tTm);
-  tTm=setTimeout(function(){t.className='';},3000);
+  tTm=setTimeout(function(){t.className='';},3500);
 }
 
-// Init
-syncSz();
-upd();
-renderDash();
+syncSz();upd();renderDash();
 </script>
 </body>
 </html>
