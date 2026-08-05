@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>ระบบจองเสื้อหมออนามัยสกลนคร</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/tabler-icons.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -17,7 +14,7 @@
   --gd:#9CA3AF;--ge:#6B7280;--gf:#374151;--gg:#111827;
   --r:10px;--rl:16px;--sh:0 1px 3px rgba(0,0,0,.08);--shm:0 4px 16px rgba(0,0,0,.12)
 }
-body{font-family:'Sarabun',sans-serif;background:#EFF4F2;color:var(--gg);min-height:100vh}
+body{font-family:Arial,sans-serif;background:#EFF4F2;color:var(--gg);min-height:100vh}
 .navbar{background:linear-gradient(135deg,var(--g1) 0%,var(--g2) 45%,var(--g3) 100%);box-shadow:0 2px 10px rgba(10,92,72,.4)}
 .nvi{max-width:1140px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;gap:14px;height:68px}
 .nlo{width:46px;height:46px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;border:2px solid rgba(255,255,255,.25)}
@@ -27,7 +24,7 @@ body{font-family:'Sarabun',sans-serif;background:#EFF4F2;color:var(--gg);min-hei
 .nst{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;white-space:nowrap}
 .tabbar{background:#fff;border-bottom:2px solid var(--gb);position:sticky;top:0;z-index:200;box-shadow:0 2px 6px rgba(0,0,0,.06)}
 .tbi{max-width:1140px;margin:0 auto;padding:0 1.5rem;display:flex;overflow-x:auto}
-.tb{padding:14px 16px;border:none;background:none;font-family:'Sarabun',sans-serif;font-size:13.5px;font-weight:500;color:var(--ge);cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s}
+.tb{padding:14px 16px;border:none;background:none;font-family:Arial,sans-serif;font-size:13.5px;font-weight:500;color:var(--ge);cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s}
 .tb:hover{color:var(--g3)}
 .tb.on{color:var(--g1);border-bottom-color:var(--g3);font-weight:700}
 .bpl{background:var(--g1);color:#fff;border-radius:20px;padding:1px 8px;font-size:11px;font-weight:700}
@@ -43,15 +40,15 @@ body{font-family:'Sarabun',sans-serif;background:#EFF4F2;color:var(--gg);min-hei
 @media(max-width:640px){.g2,.g3{grid-template-columns:1fr}}
 .fi{display:flex;flex-direction:column;gap:5px}
 .fi label{font-size:11px;font-weight:700;color:var(--ge);text-transform:uppercase;letter-spacing:.05em}
-.fi input,.fi select{width:100%;padding:9px 13px;border:1.5px solid var(--gb);border-radius:var(--r);font-family:'Sarabun',sans-serif;font-size:14px;color:var(--gg);background:#fff;transition:border-color .15s,box-shadow .15s;outline:none}
+.fi input,.fi select{width:100%;padding:9px 13px;border:1.5px solid var(--gb);border-radius:var(--r);font-family:Arial,sans-serif;font-size:14px;color:var(--gg);background:#fff;transition:border-color .15s,box-shadow .15s;outline:none}
 .fi input:focus,.fi select:focus{border-color:var(--g3);box-shadow:0 0 0 3px rgba(29,158,117,.12)}
 .mb{background:var(--g6);border:1.5px solid var(--g5);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--g1)}
 .ttg{display:grid;grid-template-columns:1fr 1fr;border:1.5px solid var(--gb);border-radius:var(--r);overflow:hidden}
-.to{padding:10px;text-align:center;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--ge);background:#fff;border:none;font-family:'Sarabun',sans-serif;transition:all .15s}
+.to{padding:10px;text-align:center;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--ge);background:#fff;border:none;font-family:Arial,sans-serif;transition:all .15s}
 .to:first-child{border-right:1.5px solid var(--gb)}
 .to.on-m{background:var(--g1);color:#fff}
 .to.on-e{background:var(--am);color:#fff}
-.btn{padding:9px 18px;border-radius:var(--r);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;border:none}
+.btn{padding:9px 18px;border-radius:var(--r);font-family:Arial,sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;border:none}
 .bg{background:linear-gradient(135deg,var(--g2),var(--g3));color:#fff;width:100%;justify-content:center;padding:12px;font-size:15px}
 .bg:hover{opacity:.9;transform:translateY(-1px);box-shadow:var(--shm)}
 .bo{background:#fff;border:1.5px solid var(--gb);color:var(--gf)}
@@ -130,12 +127,12 @@ body{font-family:'Sarabun',sans-serif;background:#EFF4F2;color:var(--gg);min-hei
 .enm{font-size:13.5px;font-weight:600;margin-bottom:5px}
 .emt{font-size:12px;color:var(--ge)}
 .ebt{display:flex;gap:6px;margin-top:6px}
-.bed{padding:4px 10px;border-radius:6px;border:1.5px solid var(--g5);background:var(--g6);color:var(--g1);font-size:12px;font-weight:600;cursor:pointer;font-family:'Sarabun',sans-serif}
+.bed{padding:4px 10px;border-radius:6px;border:1.5px solid var(--g5);background:var(--g6);color:var(--g1);font-size:12px;font-weight:600;cursor:pointer;font-family:Arial,sans-serif}
 .bed:hover{background:var(--g5)}
-.bde{padding:4px 10px;border-radius:6px;border:1.5px solid #FECACA;background:var(--rel);color:var(--re);font-size:12px;font-weight:600;cursor:pointer;font-family:'Sarabun',sans-serif}
+.bde{padding:4px 10px;border-radius:6px;border:1.5px solid #FECACA;background:var(--rel);color:var(--re);font-size:12px;font-weight:600;cursor:pointer;font-family:Arial,sans-serif}
 .bde:hover{background:#FECACA}
 .fbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem}
-.fbar select{padding:7px 12px;border:1.5px solid var(--gb);border-radius:var(--r);font-family:'Sarabun',sans-serif;font-size:13px;color:var(--gg);outline:none}
+.fbar select{padding:7px 12px;border:1.5px solid var(--gb);border-radius:var(--r);font-family:Arial,sans-serif;font-size:13px;color:var(--gg);outline:none}
 .fbar select:focus{border-color:var(--g3)}
 .div{border:none;border-top:1.5px solid var(--ga);margin:1.25rem 0}
 .emp{text-align:center;padding:3rem 1rem;color:var(--gd)}
@@ -161,27 +158,27 @@ body{font-family:'Sarabun',sans-serif;background:#EFF4F2;color:var(--gg);min-hei
 
 <div class="tabbar">
   <div class="tbi">
-    <button class="tb on" onclick="goTab('dashboard')"><i class="ti ti-layout-dashboard"></i>แดชบอร์ด</button>
-    <button class="tb" onclick="goTab('entry')"><i class="ti ti-pencil-plus"></i>บันทึกข้อมูล</button>
-    <button class="tb" onclick="goTab('list')"><i class="ti ti-list-details"></i>รายการ <span class="bpl" id="cntb">0</span></button>
-    <button class="tb" onclick="goTab('report')"><i class="ti ti-chart-bar"></i>รายงาน</button>
-    <button class="tb" onclick="goTab('shirt')"><i class="ti ti-shirt"></i>แบบเสื้อ</button>
-    <button class="tb" onclick="goTab('sizechart')"><i class="ti ti-ruler-measure"></i>ตารางไซส์</button>
+    <button class="tb on" onclick="goTab('dashboard')">📊แดชบอร์ด</button>
+    <button class="tb" onclick="goTab('entry')">✏️บันทึกข้อมูล</button>
+    <button class="tb" onclick="goTab('list')">📋รายการ <span class="bpl" id="cntb">0</span></button>
+    <button class="tb" onclick="goTab('report')">📈รายงาน</button>
+    <button class="tb" onclick="goTab('shirt')">👕แบบเสื้อ</button>
+    <button class="tb" onclick="goTab('sizechart')">📏ตารางไซส์</button>
   </div>
 </div>
 
 <!-- DASHBOARD -->
 <div class="page pn on" id="panel-dashboard">
   <div class="dg">
-    <div class="mc mg"><i class="ti ti-shirt mi"></i><div class="mn" id="d-total">0</div><div class="ml">เสื้อทั้งหมด (ตัว)</div></div>
-    <div class="mc mbl"><i class="ti ti-gender-male mi"></i><div class="mn" id="d-male">0</div><div class="ml">เสื้อชาย (ตัว)</div></div>
-    <div class="mc mpu"><i class="ti ti-gender-female mi"></i><div class="mn" id="d-female">0</div><div class="ml">เสื้อหญิง (ตัว)</div></div>
-    <div class="mc mam"><i class="ti ti-users mi"></i><div class="mn" id="d-persons">0</div><div class="ml">ผู้สั่งจอง (คน)</div></div>
-    <div class="mc mtl"><i class="ti ti-building-hospital mi"></i><div class="mn" id="d-hnum">0/24</div><div class="ml">รพ.สต. ที่สั่งแล้ว</div></div>
+    <div class="mc mg"><div class="mn" id="d-total">0</div><div class="ml">เสื้อทั้งหมด (ตัว)</div></div>
+    <div class="mc mbl"><div class="mn" id="d-male">0</div><div class="ml">เสื้อชาย (ตัว)</div></div>
+    <div class="mc mpu"><div class="mn" id="d-female">0</div><div class="ml">เสื้อหญิง (ตัว)</div></div>
+    <div class="mc mam"><div class="mn" id="d-persons">0</div><div class="ml">ผู้สั่งจอง (คน)</div></div>
+    <div class="mc mtl"><div class="mn" id="d-hnum">0/24</div><div class="ml">รพ.สต. ที่สั่งแล้ว</div></div>
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.25rem">
     <div class="card" style="margin:0">
-      <div class="ct" style="margin-bottom:1rem"><i class="ti ti-tag"></i>แยกประเภทการสั่ง</div>
+      <div class="ct" style="margin-bottom:1rem">🏷️แยกประเภทการสั่ง</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem">
         <div style="background:var(--g6);border-radius:var(--r);padding:14px;text-align:center">
           <div style="font-size:28px;font-weight:700;color:var(--g1)" id="d-meet">0</div>
@@ -195,13 +192,13 @@ body{font-family:'Sarabun',sans-serif;background:#EFF4F2;color:var(--gg);min-hei
       <div id="type-bars"></div>
     </div>
     <div class="card" style="margin:0">
-      <div class="ct" style="margin-bottom:1rem"><i class="ti ti-chart-bar"></i>Top 5 ไซส์ยอดนิยม</div>
+      <div class="ct" style="margin-bottom:1rem">📈Top 5 ไซส์ยอดนิยม</div>
       <div id="top-sizes"></div>
     </div>
   </div>
   <div class="card">
     <div class="ch">
-      <div class="ct"><i class="ti ti-building-hospital"></i>สถานะ รพ.สต. — คลิกเพื่อดู/แก้ไข</div>
+      <div class="ct">🏥สถานะ รพ.สต. — คลิกเพื่อดู/แก้ไข</div>
       <div style="display:flex;gap:8px">
         <span style="font-size:12px;color:var(--g1);background:var(--g6);border-radius:20px;padding:3px 12px;font-weight:700" id="d-hdone">0 แห่ง</span>
         <span style="font-size:12px;color:var(--ge);background:var(--ga);border-radius:20px;padding:3px 12px;font-weight:700" id="d-hnone">0 แห่ง</span>
@@ -218,7 +215,7 @@ body{font-family:'Sarabun',sans-serif;background:#EFF4F2;color:var(--gg);min-hei
 <!-- ENTRY -->
 <div class="page pn" id="panel-entry">
   <div class="card">
-    <div class="ct" style="margin-bottom:1.25rem"><i class="ti ti-user-circle"></i>ข้อมูลผู้สั่งจอง</div>
+    <div class="ct" style="margin-bottom:1.25rem">👤ข้อมูลผู้สั่งจอง</div>
     <div class="gr g2" style="margin-bottom:14px">
       <div class="fi"><label>ชื่อ-นามสกุล *</label><input id="f-name" type="text" placeholder="กรอกชื่อ-นามสกุล"></div>
       <div class="fi"><label>หมายเลขโทรศัพท์</label><input id="f-phone" type="tel" placeholder="เช่น 089-123-4567"></div>
@@ -246,20 +243,20 @@ body{font-family:'Sarabun',sans-serif;background:#EFF4F2;color:var(--gg);min-hei
       <label>ระบุหน่วยบริการ</label><input id="f-other" type="text" placeholder="กรอกชื่อ">
     </div>
     <div class="div"></div>
-    <div class="ct" style="margin-bottom:1rem"><i class="ti ti-tag"></i>ประเภทการสั่ง</div>
+    <div class="ct" style="margin-bottom:1rem">🏷️ประเภทการสั่ง</div>
     <div class="ttg" style="margin-bottom:14px">
       <button class="to on-m" id="t-meet" onclick="setTyp('meet')">🗓 ลงทะเบียนร่วมประชุม</button>
       <button class="to" id="t-extra" onclick="setTyp('extra')">🛒 สั่งซื้อเพิ่ม (ไม่ร่วมประชุม)</button>
     </div>
     <div class="div"></div>
-    <div class="ct" style="margin-bottom:1rem"><i class="ti ti-shirt"></i>ขนาดเสื้อ</div>
+    <div class="ct" style="margin-bottom:1rem">👕ขนาดเสื้อ</div>
     <div class="gr g3" style="margin-bottom:12px">
       <div class="fi"><label>เพศ</label><select id="f-gender" onchange="syncSz()"><option value="M">ชาย</option><option value="F">หญิง</option></select></div>
       <div class="fi"><label>ขนาด (รอบอก)</label><select id="f-size" onchange="showM()"></select></div>
       <div class="fi"><label>จำนวน (ตัว)</label><input id="f-qty" type="number" value="1" min="1" max="99"></div>
     </div>
-    <div class="mb" id="mbox"><i class="ti ti-info-circle" style="font-size:18px"></i><span id="mtext">เลือกขนาดเพื่อดูรายละเอียด</span></div>
-    <button class="btn bg" style="margin-top:1.25rem" onclick="addOrder()"><i class="ti ti-plus"></i>เพิ่มรายการสั่งจอง</button>
+    <div class="mb" id="mbox">ℹ<span id="mtext">เลือกขนาดเพื่อดูรายละเอียด</span></div>
+    <button class="btn bg" style="margin-top:1.25rem" onclick="addOrder()">+เพิ่มรายการสั่งจอง</button>
   </div>
 </div>
 
@@ -267,10 +264,10 @@ body{font-family:'Sarabun',sans-serif;background:#EFF4F2;color:var(--gg);min-hei
 <div class="page pn" id="panel-list">
   <div class="card">
     <div class="ch">
-      <div class="ct"><i class="ti ti-list-details"></i>รายการทั้งหมด</div>
+      <div class="ct">📋รายการทั้งหมด</div>
       <div style="display:flex;gap:8px">
-        <button class="btn bo bsm" onclick="expCSV()"><i class="ti ti-download"></i>CSV</button>
-        <button class="btn brd bsm" onclick="clrAll()"><i class="ti ti-trash"></i>ล้างทั้งหมด</button>
+        <button class="btn bo bsm" onclick="expCSV()">⬇CSV</button>
+        <button class="btn brd bsm" onclick="clrAll()">🗑ล้างทั้งหมด</button>
       </div>
     </div>
     <div class="fbar">
@@ -296,8 +293,8 @@ body{font-family:'Sarabun',sans-serif;background:#EFF4F2;color:var(--gg);min-hei
   </div>
   <div class="card">
     <div class="ch">
-      <div class="ct"><i class="ti ti-table"></i>รายละเอียดทั้งหมด</div>
-      <button class="btn bo bsm" onclick="expCSV()"><i class="ti ti-download"></i>ส่งออก CSV</button>
+      <div class="ct">📊รายละเอียดทั้งหมด</div>
+      <button class="btn bo bsm" onclick="expCSV()">⬇ส่งออก CSV</button>
     </div>
     <div class="tw"><table class="rt"><tbody id="rpt-all"></tbody></table></div>
   </div>
@@ -306,7 +303,7 @@ body{font-family:'Sarabun',sans-serif;background:#EFF4F2;color:var(--gg);min-hei
 <!-- SHIRT -->
 <div class="page pn" id="panel-shirt">
   <div class="card">
-    <div class="ct" style="margin-bottom:1.25rem"><i class="ti ti-shirt"></i>แบบเสื้อสมาคมหมออนามัยสกลนคร</div>
+    <div class="ct" style="margin-bottom:1.25rem">👕แบบเสื้อสมาคมหมออนามัยสกลนคร</div>
     <img src="shirt.jpg" class="shirt-img" alt="แบบเสื้อ">
     <div style="margin-top:1.25rem;background:var(--g6);border-radius:var(--r);padding:1rem 1.25rem">
       <p style="font-size:14px;color:var(--g1);font-weight:700;margin-bottom:6px">หมายเหตุ</p>
@@ -366,12 +363,12 @@ body{font-family:'Sarabun',sans-serif;background:#EFF4F2;color:var(--gg);min-hei
     </div>
     <div class="mft">
       <button class="btn bo bsm" onclick="closeMev2()">ยกเลิก</button>
-      <button class="btn bg bsm" style="width:auto" onclick="saveEdit()"><i class="ti ti-check"></i>บันทึก</button>
+      <button class="btn bg bsm" style="width:auto" onclick="saveEdit()">✓บันทึก</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"><i class="ti ti-circle-check"></i><span id="tmsg"></span></div>
+<div class="toast" id="toast">✓<span id="tmsg"></span></div>
 
 <script>
 var HOSP=['รพ.สต.บ้านดงมะไฟสามัคคี','รพ.สต.บ้านฮางโฮง','รพ.สต.ธาตุเชิงชุม','รพสต.บ้านหนองปลาน้อย','รพสต.พังขว้างใต้','รพสต.บ้านโนนหอม','รพ.สต.นาคำ','รพ.สต.บ้านทับสอ','รพ.สต.บ้านดงขุมข้าว','รพ.สต.นาขาม','รพ.สต.บ้านโคกก่องใหญ่','รพ.สต.บ้านลาดกะเฌอ','รพ.สต.บ้านแมด','รพ.สต.บ้านม่วงลาย','รพสต.ดงพัฒนา','รพสต.คูสนาม','รพสต.บ้านเชียงเครือวัดใหญ่','รพ.สต.หนองลาดใต้','รพ.สต.ดอนแคนใต้','รพ.สต.บ้านดงมะไฟ','รพ.สต.บ้านโคกเลาะ','รพ.สต.บ้านหนองสนม','รพ.สต.บ้านหนองไผ่','รพ.สต.บ้านสร้างแก้วสมานมิตร'];
@@ -452,7 +449,7 @@ function renderDash(){
     return '<div class="hi'+(qty?' has':'') +'" onclick="openHosp(''+henc+'')">'
       +'<div class="hd '+(qty?'dy':'dn')+'"></div>'
       +'<div class="hn">'+h+'</div>'
-      +(qty?'<span class="hc">'+qty+' ตัว</span><span class="he"><i class="ti ti-edit" style="font-size:13px"></i></span>':'<span class="hem">ยังไม่สั่ง</span>')
+      +(qty?'<span class="hc">'+qty+' ตัว</span><span class="he">✏</span>':'<span class="hem">ยังไม่สั่ง</span>')
       +'</div>';
   }).join('');
 }
@@ -461,7 +458,7 @@ function openHosp(name){
   var rows=orders.filter(function(o){return o.dept===name;});
   document.getElementById('mh-title').textContent=name+' — '+rows.length+' คน';
   var el=document.getElementById('mh-body');
-  if(!rows.length){el.innerHTML='<div class="emp"><i class="ti ti-clipboard"></i><p>ยังไม่มีรายการ</p></div>';}
+  if(!rows.length){el.innerHTML='<div class="emp">📋<p>ยังไม่มีรายการ</p></div>';}
   else{el.innerHTML=rows.map(function(o){
     return '<div class="er">'
       +'<div class="eav '+(o.g==='M'?'avm':'avf')+'">'+o.name.charAt(0)+'</div>'
@@ -469,8 +466,8 @@ function openHosp(name){
       +'<div class="enm">'+o.name+'</div>'
       +'<div class="emt">📞 '+(o.phone||'-')+' | '+(o.g==='M'?'ชาย':'หญิง')+' ไซส์ '+o.lb+' ('+o.ch+'") | '+o.qty+' ตัว | <span style="color:'+(o.type==='meet'?'var(--g1)':'var(--am)')+'">'+  (o.type==='meet'?'ลงทะเบียนประชุม':'สั่งซื้อเพิ่ม')+'</span></div>'
       +'<div class="ebt">'
-      +'<button class="bed" onclick="openEdit('+o.id+')"><i class="ti ti-edit" style="font-size:13px"></i> แก้ไข</button>'
-      +'<button class="bde" onclick="delFM('+o.id+')"><i class="ti ti-trash" style="font-size:13px"></i> ลบ</button>'
+      +'<button class="bed" onclick="openEdit('+o.id+')">✏ แก้ไข</button>'
+      +'<button class="bde" onclick="delFM('+o.id+')">🗑 ลบ</button>'
       +'</div></div></div>';
   }).join('');}
   document.getElementById('mov').classList.add('on');
@@ -512,15 +509,15 @@ function renderList(){
   var dv=document.getElementById('fl-d').value,gv=document.getElementById('fl-g').value,tv=document.getElementById('fl-t').value;
   var f=orders.filter(function(o){return(!dv||o.dept===dv)&&(!gv||o.g===gv)&&(!tv||o.type===tv);});
   var el=document.getElementById('order-list');
-  if(!f.length){el.innerHTML='<div class="emp"><i class="ti ti-clipboard"></i><p>ไม่พบรายการ</p></div>';return;}
+  if(!f.length){el.innerHTML='<div class="emp">📋<p>ไม่พบรายการ</p></div>';return;}
   el.innerHTML=f.map(function(o){
     return '<div class="oi">'
       +'<div class="av '+(o.g==='M'?'avm':'avf')+'">'+o.name.charAt(0)+'</div>'
       +'<div class="oin"><div class="oname">'+o.name+'</div>'
       +'<div class="ometa">'+o.dept+' · 📞 '+(o.phone||'-')+' · <span style="color:'+(o.type==='meet'?'var(--g1)':'var(--am)')+'">● '+(o.type==='meet'?'ประชุม':'เพิ่ม')+'</span></div></div>'
       +'<div class="or"><div><span class="osiz">'+(o.g==='M'?'ชาย':'หญิง')+' '+o.lb+'</span></div><div class="oqt">'+o.qty+' ตัว · '+o.ch+'"</div></div>'
-      +'<button class="btn bo bsm" style="margin-right:4px" onclick="openEdit('+o.id+')"><i class="ti ti-edit"></i></button>'
-      +'<button class="bdl" onclick="delOrd('+o.id+')"><i class="ti ti-x" style="font-size:15px"></i></button>'
+      +'<button class="btn bo bsm" style="margin-right:4px" onclick="openEdit('+o.id+')">✏️</button>'
+      +'<button class="bdl" onclick="delOrd('+o.id+')">✕</button>'
       +'</div>';
   }).join('');
 }
