@@ -297,10 +297,7 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
       <div class="fi"><label>จำนวน (ตัว)</label><input id="f-qty" type="number" value="1" min="1" max="99"></div>
     </div>
     <div class="mbox" id="mbox">ℹ เลือกขนาดเพื่อดูรายละเอียด</div>
-    <div class="btn-row">
-      <button class="btn-g" onclick="addOrder()">+ เพิ่มรายการ</button>
-      <button class="btn-save" onclick="saveData()">💾 บันทึกข้อมูล</button>
-    </div>
+    <button class="btn-save" style="margin-top:12px" onclick="saveData()">💾 บันทึกข้อมูล</button>
     <div id="saved-list"></div>
   </div>
 </div>
@@ -489,35 +486,16 @@ function showM(){var g=document.getElementById('f-gender').value,i=parseInt(docu
 function getDept(){var v=document.getElementById('f-dept').value;return v==='__oth__'?document.getElementById('f-oth').value.trim():v;}
 function getFullName(){return document.getElementById('f-prefix').value+document.getElementById('f-fname').value.trim()+(document.getElementById('f-lname').value.trim()?' '+document.getElementById('f-lname').value.trim():'');}
 
-function addOrder(){
+function saveData(){
   var fname=document.getElementById('f-fname').value.trim(),dept=getDept();
   if(!fname){document.getElementById('f-fname').focus();showToast('กรุณากรอกชื่อ',true);return;}
   if(!dept){document.getElementById('f-dept').focus();showToast('กรุณาเลือกหน่วยบริการ',true);return;}
   var g=document.getElementById('f-gender').value,si=parseInt(document.getElementById('f-size').value)||0,qty=Math.max(1,parseInt(document.getElementById('f-qty').value)||1),d=SD[g];
   var name=getFullName(),phone=document.getElementById('f-phone').value.trim();
-  pendingList.push({id:Date.now(),name:name,phone:phone,dept:dept,g:g,si:si,ch:d.ch[si],ln:d.ln[si],qty:qty,type:otyp});
-  renderPending();
+  orders.push({id:Date.now(),name:name,phone:phone,dept:dept,g:g,si:si,ch:d.ch[si],ln:d.ln[si],qty:qty,type:otyp});
+  svFirebase();upd();
   document.getElementById('f-fname').value='';document.getElementById('f-lname').value='';document.getElementById('f-phone').value='';document.getElementById('f-qty').value=1;
-  showToast('เพิ่ม "'+name+'" รอบันทึก — กดปุ่ม บันทึกข้อมูล เพื่อยืนยัน',false);
-}
-
-function renderPending(){
-  var el=document.getElementById('saved-list');
-  if(!pendingList.length){el.innerHTML='';return;}
-  el.innerHTML='<div class="pending-box"><div style="font-size:12px;font-weight:700;color:#B45309;margin-bottom:8px">⏳ รายการรอบันทึก ('+pendingList.length+' รายการ) — กดปุ่ม บันทึกข้อมูล เพื่อยืนยัน</div>'
-    +pendingList.map(function(o,i){return '<div class="pending-item"><span>'+o.name+' | '+(o.g==='M'?'ชาย':'หญิง')+' รอบอก '+o.ch+'" | '+o.qty+' ตัว | '+(o.type==='meet'?'ประชุม':'สั่งซื้อเพิ่ม')+'</span><button onclick="rmPending('+i+')" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:14px">✕</button></div>';}).join('')+'</div>';
-}
-function rmPending(i){pendingList.splice(i,1);renderPending();}
-
-function saveData(){
-  if(!pendingList.length && orders.length===0){showToast('ไม่มีรายการ กดปุ่ม "เพิ่มรายการ" ก่อน',true);return;}
-  if(pendingList.length>0){
-    pendingList.forEach(function(o){orders.push(o);});
-    var n=pendingList.length;pendingList=[];renderPending();
-    svFirebase();upd();showToast('บันทึกสำเร็จ '+n+' รายการ!',false);
-  } else {
-    svFirebase();showToast('บันทึกข้อมูลขึ้น Firebase สำเร็จ!',false);
-  }
+  showToast('บันทึก "'+name+'" สำเร็จ!',false);
 }
 
 function upd(){
