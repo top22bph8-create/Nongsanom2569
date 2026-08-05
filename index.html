@@ -323,47 +323,25 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
 
 <!-- ===== REPORT ===== -->
 <div class="pn" id="pn-report">
+  <!-- รายงาน 1: ลงทะเบียนประชุม -->
   <div class="card">
-    <div class="sec">📤 ส่งออกรายงาน</div>
+    <div class="sec">🗓 รายงานที่ 1 — การสั่งซื้อประเภทเข้าร่วมประชุม (ภาพรวมทั้งอำเภอ เรียงรายรพ.สต.)</div>
     <div class="exp-row">
-      <button class="btn-exp ball" onclick="expExcel('all')">📊 ทุกรายการ (Excel)</button>
-      <button class="btn-exp bxl" onclick="expExcel('meet')">📊 ลงทะเบียนประชุม (Excel)</button>
-      <button class="btn-exp bxl" onclick="expExcel('extra')">📊 สั่งซื้อเพิ่ม+ราคา (Excel)</button>
-      <button class="btn-exp bpdf" onclick="expPDF('all')">📄 ทุกรายการ (PDF)</button>
-      <button class="btn-exp bpdf" onclick="expPDF('meet')">📄 ลงทะเบียนประชุม (PDF)</button>
-      <button class="btn-exp bpdf" onclick="expPDF('extra')">📄 สั่งซื้อเพิ่ม (PDF)</button>
-      <button class="btn-exp bpdf" onclick="expPDF('summary')">📄 สรุปแยก รพ.สต. (PDF)</button>
+      <button class="btn-exp bxl" onclick="expExcelByHosp('meet')">📊 ส่งออก Excel</button>
+      <button class="btn-exp bpdf" onclick="expPDFByHosp('meet')">📄 ส่งออก PDF</button>
     </div>
+    <div class="tw"><table class="rt"><tbody id="rpt-meet-hosp"></tbody></table></div>
   </div>
 
-  <!-- สรุปภาพรวม -->
+  <!-- รายงาน 2: สั่งซื้อเพิ่ม -->
   <div class="card">
-    <div class="sec">📊 สรุปภาพรวมทุก รพ.สต. แยกประเภท ชาย/หญิง/ขนาด</div>
-    <div class="tw"><table class="rt"><tbody id="rpt-summary"></tbody></table></div>
-  </div>
-
-  <!-- ลงทะเบียนประชุม -->
-  <div class="card">
-    <div class="sec">🗓 ผู้ลงทะเบียนร่วมประชุม</div>
-    <div class="d2">
-      <div><div style="margin-bottom:.5rem"><span class="chip cm">ชาย</span></div><div class="tw"><table class="rt"><tbody id="rpt-meet-m"></tbody></table></div></div>
-      <div><div style="margin-bottom:.5rem"><span class="chip cf">หญิง</span></div><div class="tw"><table class="rt"><tbody id="rpt-meet-f"></tbody></table></div></div>
-    </div>
-    <div class="tw" style="margin-top:12px"><table class="rt"><tbody id="rpt-meet-all"></tbody></table></div>
-  </div>
-
-  <!-- สั่งซื้อเพิ่ม -->
-  <div class="card">
-    <div class="sec">🛒 ผู้สั่งซื้อเพิ่ม (ไม่ร่วมประชุม)</div>
+    <div class="sec">🛒 รายงานที่ 2 — การสั่งซื้อเพิ่มเติม ไม่ได้เข้าร่วมประชุม (ภาพรวมทั้งอำเภอ เรียงรายรพ.สต.)</div>
     <div class="price-tag">💰 ราคาตัวละ 450 บาท</div>
-    <div class="d2">
-      <div><div style="margin-bottom:.5rem"><span class="chip cm">ชาย</span></div><div class="tw"><table class="rt"><tbody id="rpt-ex-m"></tbody></table></div></div>
-      <div><div style="margin-bottom:.5rem"><span class="chip cf">หญิง</span></div><div class="tw"><table class="rt"><tbody id="rpt-ex-f"></tbody></table></div></div>
+    <div class="exp-row">
+      <button class="btn-exp bxl" onclick="expExcelByHosp('extra')">📊 ส่งออก Excel</button>
+      <button class="btn-exp bpdf" onclick="expPDFByHosp('extra')">📄 ส่งออก PDF</button>
     </div>
-    <div class="sec" style="margin-top:1rem">รายละเอียดรายบุคคล</div>
-    <div class="tw"><table class="rt"><tbody id="rpt-ex-all"></tbody></table></div>
-    <div class="sec" style="margin-top:1rem">สรุปแยก รพ.สต.</div>
-    <div class="tw"><table class="rt"><tbody id="rpt-ex-hosp"></tbody></table></div>
+    <div class="tw"><table class="rt"><tbody id="rpt-extra-hosp"></tbody></table></div>
   </div>
 </div>
 
@@ -561,102 +539,97 @@ function openEML(id){goTab('dash');setTimeout(function(){openEM(id);},100);}
 function delOrd(id){orders=orders.filter(function(o){return o.id!==id;});svFirebase();upd();renderList();}
 function clrAll(){if(!orders.length)return;if(confirm('ล้างรายการทั้งหมด?')){orders=[];svFirebase();upd();renderList();}}
 
-function makeSzTbl(rows,g){
-  var f=rows.filter(function(o){return o.g===g;});
-  if(!f.length)return '<tr><td colspan="3" class="emp">ไม่มีข้อมูล</td></tr>';
-  var map={};f.forEach(function(o){if(!map[o.si])map[o.si]={ch:o.ch,ln:o.ln,qty:0};map[o.si].qty+=o.qty;});
-  var vals=Object.values(map).sort(function(a,b){return a.ch-b.ch;});
-  var sum=vals.reduce(function(s,r){return s+r.qty;},0);
-  return '<tr><th>รอบอก</th><th>ความยาว</th><th class="num">จำนวน</th></tr>'+vals.map(function(r){return '<tr><td>'+r.ch+'"</td><td>'+r.ln+'"</td><td class="num">'+r.qty+'</td></tr>';}).join('')+'<tfoot><tr><td colspan="2">รวม</td><td class="num">'+sum+'</td></tr></tfoot>';
+function groupByHosp(data){
+  // Returns array in fixed HOSP order (only hospitals that have data), each with rows + subtotal
+  var byHosp={};
+  data.forEach(function(o){
+    if(!byHosp[o.dept])byHosp[o.dept]=[];
+    byHosp[o.dept].push(o);
+  });
+  var orderedKeys=HOSP.filter(function(h){return byHosp[h];});
+  // Include any dept not in HOSP list (custom "อื่นๆ" entries) at the end
+  Object.keys(byHosp).forEach(function(k){if(orderedKeys.indexOf(k)===-1)orderedKeys.push(k);});
+  return orderedKeys.map(function(h){
+    var rows=byHosp[h].slice().sort(function(a,b){return a.name.localeCompare(b.name,'th');});
+    var qty=rows.reduce(function(s,o){return s+o.qty;},0);
+    var money=rows.reduce(function(s,o){return s+(o.type==='extra'?o.qty*PRICE:0);},0);
+    return {hosp:h,rows:rows,qty:qty,money:money};
+  });
 }
 
 function renderReport(){
   var meet=orders.filter(function(o){return o.type==='meet';});
   var extra=orders.filter(function(o){return o.type==='extra';});
-
-  // สรุปทุก รพ.สต.
-  var sm=document.getElementById('rpt-summary');
-  if(!orders.length){sm.innerHTML='<tr><td colspan="8" class="emp">ไม่มีข้อมูล</td></tr>';}
-  else{
-    var hmap={};
-    orders.forEach(function(o){
-      if(!hmap[o.dept])hmap[o.dept]={meet_m:0,meet_f:0,ex_m:0,ex_f:0,tot:0};
-      if(o.type==='meet'&&o.g==='M')hmap[o.dept].meet_m+=o.qty;
-      if(o.type==='meet'&&o.g==='F')hmap[o.dept].meet_f+=o.qty;
-      if(o.type==='extra'&&o.g==='M')hmap[o.dept].ex_m+=o.qty;
-      if(o.type==='extra'&&o.g==='F')hmap[o.dept].ex_f+=o.qty;
-      hmap[o.dept].tot+=o.qty;
-    });
-    var keys=Object.keys(hmap);
-    sm.innerHTML='<tr><th>#</th><th>หน่วยบริการ</th><th class="num">ประชุม-ชาย</th><th class="num">ประชุม-หญิง</th><th class="num">ซื้อเพิ่ม-ชาย</th><th class="num">ซื้อเพิ่ม-หญิง</th><th class="num">รวม(ตัว)</th><th class="num">เงิน(บาท)</th></tr>'
-      +keys.map(function(k,i){var v=hmap[k],money=(v.ex_m+v.ex_f)*PRICE;return '<tr><td style="color:#9ca3af">'+(i+1)+'</td><td style="font-weight:600">'+k+'</td><td class="num">'+v.meet_m+'</td><td class="num">'+v.meet_f+'</td><td class="num">'+v.ex_m+'</td><td class="num">'+v.ex_f+'</td><td class="num" style="font-weight:700">'+v.tot+'</td><td class="num" style="color:#B45309;font-weight:700">'+(money>0?fmt(money):'-')+'</td></tr>';}).join('')
-      +'<tfoot><tr><td colspan="2">รวมทั้งหมด</td><td class="num">'+keys.reduce(function(s,k){return s+hmap[k].meet_m;},0)+'</td><td class="num">'+keys.reduce(function(s,k){return s+hmap[k].meet_f;},0)+'</td><td class="num">'+keys.reduce(function(s,k){return s+hmap[k].ex_m;},0)+'</td><td class="num">'+keys.reduce(function(s,k){return s+hmap[k].ex_f;},0)+'</td><td class="num">'+orders.reduce(function(s,o){return s+o.qty;},0)+'</td><td class="num">'+fmt(extra.reduce(function(s,o){return s+o.qty*PRICE;},0))+'</td></tr></tfoot>';
-  }
-
-  document.getElementById('rpt-meet-m').innerHTML=makeSzTbl(meet,'M');
-  document.getElementById('rpt-meet-f').innerHTML=makeSzTbl(meet,'F');
-  var mm=document.getElementById('rpt-meet-all');
-  if(!meet.length){mm.innerHTML='<tr><td colspan="7" class="emp">ไม่มีข้อมูล</td></tr>';}
-  else mm.innerHTML='<tr><th>#</th><th>ชื่อ-สกุล</th><th>โทรศัพท์</th><th>หน่วยบริการ</th><th>เพศ</th><th>รอบอก</th><th class="num">จำนวน</th></tr>'+meet.map(function(o,i){return '<tr><td style="color:#9ca3af">'+(i+1)+'</td><td style="font-weight:700">'+o.name+'</td><td>'+(o.phone||'-')+'</td><td style="font-size:12px">'+o.dept+'</td><td><span class="chip '+(o.g==='M'?'cm':'cf')+'">'+(o.g==='M'?'ชาย':'หญิง')+'</span></td><td>'+o.ch+'"</td><td class="num">'+o.qty+'</td></tr>';}).join('');
-
-  document.getElementById('rpt-ex-m').innerHTML=makeSzTbl(extra,'M');
-  document.getElementById('rpt-ex-f').innerHTML=makeSzTbl(extra,'F');
-  var ea=document.getElementById('rpt-ex-all'),etot=extra.reduce(function(s,o){return s+o.qty*PRICE;},0);
-  if(!extra.length){ea.innerHTML='<tr><td colspan="8" class="emp">ไม่มีข้อมูล</td></tr>';}
-  else ea.innerHTML='<tr><th>#</th><th>ชื่อ-สกุล</th><th>โทรศัพท์</th><th>หน่วยบริการ</th><th>เพศ</th><th>รอบอก</th><th class="num">จำนวน</th><th class="num">เงิน(บาท)</th></tr>'+extra.map(function(o,i){return '<tr><td style="color:#9ca3af">'+(i+1)+'</td><td style="font-weight:700">'+o.name+'</td><td>'+(o.phone||'-')+'</td><td style="font-size:12px">'+o.dept+'</td><td><span class="chip '+(o.g==='M'?'cm':'cf')+'">'+(o.g==='M'?'ชาย':'หญิง')+'</span></td><td>'+o.ch+'"</td><td class="num">'+o.qty+'</td><td class="num" style="color:#B45309;font-weight:700">'+fmt(o.qty*PRICE)+'</td></tr>';}).join('')+'<tfoot><tr><td colspan="6">รวม</td><td class="num">'+extra.reduce(function(s,o){return s+o.qty;},0)+'</td><td class="num">'+fmt(etot)+'</td></tr></tfoot>';
-  var eh=document.getElementById('rpt-ex-hosp'),hm={};
-  extra.forEach(function(o){if(!hm[o.dept])hm[o.dept]={qty:0,money:0};hm[o.dept].qty+=o.qty;hm[o.dept].money+=o.qty*PRICE;});
-  var hk=Object.keys(hm);
-  if(!hk.length){eh.innerHTML='<tr><td colspan="4" class="emp">ไม่มีข้อมูล</td></tr>';}
-  else{var ht=hk.reduce(function(s,k){return s+hm[k].qty;},0),hmo=hk.reduce(function(s,k){return s+hm[k].money;},0);eh.innerHTML='<tr><th>#</th><th>หน่วยบริการ</th><th class="num">จำนวน(ตัว)</th><th class="num">รวมเงิน(บาท)</th></tr>'+hk.map(function(k,i){return '<tr><td style="color:#9ca3af">'+(i+1)+'</td><td style="font-weight:600">'+k+'</td><td class="num">'+hm[k].qty+'</td><td class="num" style="color:#B45309;font-weight:700">'+fmt(hm[k].money)+'</td></tr>';}).join('')+'<tfoot><tr><td colspan="2">รวม</td><td class="num">'+ht+'</td><td class="num">'+fmt(hmo)+'</td></tr></tfoot>';}
+  renderHospTable('rpt-meet-hosp',groupByHosp(meet),false);
+  renderHospTable('rpt-extra-hosp',groupByHosp(extra),true);
 }
 
-// ===== EXCEL EXPORT =====
-function expExcel(type){
-  var wb=XLSX.utils.book_new();
-  var data,title;
-  if(type==='meet'){data=orders.filter(function(o){return o.type==='meet';});title='ลงทะเบียนประชุม';}
-  else if(type==='extra'){data=orders.filter(function(o){return o.type==='extra';});title='สั่งซื้อเพิ่ม';}
-  else{data=orders;title='ทุกรายการ';}
+function renderHospTable(elId,groups,showMoney){
+  var el=document.getElementById(elId);
+  if(!groups.length){el.innerHTML='<tr><td class="emp">ไม่มีข้อมูล</td></tr>';return;}
+  var html='<tr><th>#</th><th>ชื่อ-สกุล</th><th>โทรศัพท์</th><th>เพศ</th><th>รอบอก</th><th>ความยาว</th><th class="num">จำนวน</th>'+(showMoney?'<th class="num">เงิน(บาท)</th>':'')+'</tr>';
+  var grandQty=0,grandMoney=0,n=0;
+  groups.forEach(function(g){
+    html+='<tr style="background:#E1F5EE"><td colspan="'+(showMoney?8:7)+'" style="font-weight:700;color:#0A5C48">🏥 '+g.hosp+' — '+g.rows.length+' คน / '+g.qty+' ตัว'+(showMoney?' / '+fmt(g.money)+' บาท':'')+'</td></tr>';
+    g.rows.forEach(function(o){
+      n++;
+      html+='<tr><td style="color:#9ca3af">'+n+'</td><td style="font-weight:600">'+o.name+'</td><td>'+(o.phone||'-')+'</td><td><span class="chip '+(o.g==='M'?'cm':'cf')+'">'+(o.g==='M'?'ชาย':'หญิง')+'</span></td><td>'+o.ch+'"</td><td>'+o.ln+'"</td><td class="num">'+o.qty+'</td>'+(showMoney?'<td class="num" style="color:#B45309;font-weight:700">'+fmt(o.qty*PRICE)+'</td>':'')+'</tr>';
+    });
+    grandQty+=g.qty;grandMoney+=g.money;
+  });
+  html+='<tfoot><tr><td colspan="'+(showMoney?6:6)+'">รวมทั้งอำเภอ</td><td class="num">'+grandQty+'</td>'+(showMoney?'<td class="num">'+fmt(grandMoney)+'</td>':'')+'</tr></tfoot>';
+  el.innerHTML=html;
+}
+
+// ===== EXCEL EXPORT (grouped by รพ.สต.) =====
+function expExcelByHosp(type){
+  var data=orders.filter(function(o){return o.type===type;});
+  var reportName=type==='meet'?'รายงานการสั่งซื้อประเภทเข้าร่วมประชุม':'รายงานการสั่งซื้อประเภทสั่งซื้อเพิ่มเติม (ไม่ได้เข้าร่วมประชุม)';
   if(!data.length){showToast('ไม่มีข้อมูลสำหรับส่งออก',true);return;}
 
-  var HEADERS=['ลำดับที่','ชื่อ-สกุล','หมายเลขโทรศัพท์','ชื่อหน่วยบริการ','เพศ','รอบอก(นิ้ว)','ความยาว(นิ้ว)','จำนวน(ตัว)','ราคาเสื้อ(บาท/ตัว)','รวมเงิน(บาท)'];
+  var groups=groupByHosp(data);
+  var showMoney=type==='extra';
+  var HEADERS=showMoney
+    ?['ลำดับที่','ชื่อ-สกุล','หมายเลขโทรศัพท์','เพศ','รอบอก(นิ้ว)','ความยาว(นิ้ว)','จำนวน(ตัว)','ราคาเสื้อ(บาท/ตัว)','รวมเงิน(บาท)']
+    :['ลำดับที่','ชื่อ-สกุล','หมายเลขโทรศัพท์','เพศ','รอบอก(นิ้ว)','ความยาว(นิ้ว)','จำนวน(ตัว)'];
+  var ncols=HEADERS.length;
 
-  // Sheet 1: รายละเอียด
-  var rows=[[RPT_TITLE],[RPT_SUBTITLE],['วันที่ออกรายงาน: '+new Date().toLocaleDateString('th-TH')],[],HEADERS];
-  data.forEach(function(o,i){
-    var price=o.type==='extra'?PRICE:0;
-    var total=o.type==='extra'?o.qty*PRICE:0;
-    rows.push([i+1,o.name,o.phone||'-',o.dept,o.g==='M'?'ชาย':'หญิง',o.ch,o.ln,o.qty,price>0?price:'-',total>0?total:'-']);
+  var rows=[[RPT_TITLE],[RPT_SUBTITLE],[reportName],['วันที่ออกรายงาน: '+new Date().toLocaleDateString('th-TH')],[]];
+  var n=0,grandQty=0,grandMoney=0;
+  groups.forEach(function(g){
+    rows.push(['หน่วยบริการ: '+g.hosp+'  ('+g.rows.length+' คน / '+g.qty+' ตัว'+(showMoney?' / '+fmt(g.money)+' บาท':'')+')']);
+    rows.push(HEADERS);
+    g.rows.forEach(function(o){
+      n++;
+      var r=[n,o.name,o.phone||'-',o.g==='M'?'ชาย':'หญิง',o.ch,o.ln,o.qty];
+      if(showMoney)r.push(PRICE,o.qty*PRICE);
+      rows.push(r);
+    });
+    var subRow=new Array(ncols).fill('');
+    if(showMoney){subRow[ncols-3]='รวม';subRow[ncols-2]=g.qty;subRow[ncols-1]=g.money;}
+    else{subRow[ncols-2]='รวม';subRow[ncols-1]=g.qty;}
+    rows.push(subRow);
+    rows.push([]);
+    grandQty+=g.qty;grandMoney+=g.money;
   });
-  var ws1=XLSX.utils.aoa_to_sheet(rows);
-  ws1['!cols']=[{wch:8},{wch:26},{wch:16},{wch:30},{wch:8},{wch:12},{wch:12},{wch:12},{wch:16},{wch:14}];
-  ws1['!merges']=[{s:{r:0,c:0},e:{r:0,c:9}},{s:{r:1,c:0},e:{r:1,c:9}},{s:{r:2,c:0},e:{r:2,c:9}}];
-  XLSX.utils.book_append_sheet(wb,ws1,'รายละเอียด');
+  var grandRow=new Array(ncols).fill('');
+  if(showMoney){grandRow[ncols-3]='รวมทั้งอำเภอ';grandRow[ncols-2]=grandQty;grandRow[ncols-1]=grandMoney;}
+  else{grandRow[ncols-2]='รวมทั้งอำเภอ';grandRow[ncols-1]=grandQty;}
+  rows.push(grandRow);
 
-  // Sheet 2: สรุปขนาดชาย
-  var mRows=[['สรุปขนาดเสื้อชาย'],[],['รอบอก(นิ้ว)','ความยาว(นิ้ว)','จำนวน(ตัว)']];
-  var mmap={};data.filter(function(o){return o.g==='M';}).forEach(function(o){if(!mmap[o.si])mmap[o.si]={ch:o.ch,ln:o.ln,qty:0};mmap[o.si].qty+=o.qty;});
-  Object.values(mmap).sort(function(a,b){return a.ch-b.ch;}).forEach(function(r){mRows.push([r.ch,r.ln,r.qty]);});
-  var ws2=XLSX.utils.aoa_to_sheet(mRows);ws2['!cols']=[{wch:14},{wch:14},{wch:12}];XLSX.utils.book_append_sheet(wb,ws2,'สรุปขนาดชาย');
+  var wb=XLSX.utils.book_new();
+  var ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=showMoney
+    ?[{wch:8},{wch:26},{wch:16},{wch:8},{wch:12},{wch:12},{wch:12},{wch:16},{wch:14}]
+    :[{wch:8},{wch:26},{wch:16},{wch:8},{wch:12},{wch:12},{wch:12}];
+  ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:ncols-1}},{s:{r:1,c:0},e:{r:1,c:ncols-1}},{s:{r:2,c:0},e:{r:2,c:ncols-1}},{s:{r:3,c:0},e:{r:3,c:ncols-1}}];
+  XLSX.utils.book_append_sheet(wb,ws,type==='meet'?'ลงทะเบียนประชุม':'สั่งซื้อเพิ่ม');
 
-  // Sheet 3: สรุปขนาดหญิง
-  var fRows=[['สรุปขนาดเสื้อหญิง'],[],['รอบอก(นิ้ว)','ความยาว(นิ้ว)','จำนวน(ตัว)']];
-  var fmap={};data.filter(function(o){return o.g==='F';}).forEach(function(o){if(!fmap[o.si])fmap[o.si]={ch:o.ch,ln:o.ln,qty:0};fmap[o.si].qty+=o.qty;});
-  Object.values(fmap).sort(function(a,b){return a.ch-b.ch;}).forEach(function(r){fRows.push([r.ch,r.ln,r.qty]);});
-  var ws3=XLSX.utils.aoa_to_sheet(fRows);ws3['!cols']=[{wch:14},{wch:14},{wch:12}];XLSX.utils.book_append_sheet(wb,ws3,'สรุปขนาดหญิง');
-
-  // Sheet 4: สรุปแยก รพ.สต.
-  var hRows=[['สรุปแยกหน่วยบริการ'],[],['ชื่อหน่วยบริการ','จำนวน(ตัว)','รวมเงิน(บาท)']];
-  var hmap={};data.forEach(function(o){if(!hmap[o.dept])hmap[o.dept]={qty:0,money:0};hmap[o.dept].qty+=o.qty;hmap[o.dept].money+=o.type==='extra'?o.qty*PRICE:0;});
-  Object.keys(hmap).forEach(function(k){hmap[k].money>0?hRows.push([k,hmap[k].qty,hmap[k].money]):hRows.push([k,hmap[k].qty,'-']);});
-  var ws4=XLSX.utils.aoa_to_sheet(hRows);ws4['!cols']=[{wch:32},{wch:12},{wch:14}];XLSX.utils.book_append_sheet(wb,ws4,'สรุปแยก รพ.สต.');
-
-  XLSX.writeFile(wb,'รายงาน_'+title+'_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  XLSX.writeFile(wb,(type==='meet'?'รายงานลงทะเบียนประชุม_':'รายงานสั่งซื้อเพิ่ม_')+new Date().toISOString().slice(0,10)+'.xlsx');
   showToast('ส่งออก Excel สำเร็จ: '+data.length+' รายการ',false);
 }
 
-// ===== PDF EXPORT (Thai font) =====
+// ===== PDF EXPORT (Thai font, grouped by รพ.สต.) =====
 var thaiFontLoaded=false;
 function ensureThaiFont(doc){
   if(!thaiFontLoaded){
@@ -669,19 +642,16 @@ function ensureThaiFont(doc){
   doc.setFont('Sarabun','normal');
 }
 
-function expPDF(type){
-  var doc=new jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
-  ensureThaiFont(doc);
-  var data,title2;
-  if(type==='meet'){data=orders.filter(function(o){return o.type==='meet';});title2='ผู้ลงทะเบียนร่วมประชุม';}
-  else if(type==='extra'){data=orders.filter(function(o){return o.type==='extra';});title2='ผู้สั่งซื้อเพิ่ม (ราคาตัวละ '+PRICE+' บาท)';}
-  else if(type==='summary'){data=orders;title2='สรุปแยกหน่วยบริการ';}
-  else{data=orders;title2='รายการทั้งหมด';}
+function expPDFByHosp(type){
+  var data=orders.filter(function(o){return o.type===type;});
+  var reportName=type==='meet'?'รายงานการสั่งซื้อประเภทเข้าร่วมประชุม (ภาพรวมทั้งอำเภอ)':'รายงานการสั่งซื้อประเภทสั่งซื้อเพิ่มเติม ไม่ได้เข้าร่วมประชุม (ภาพรวมทั้งอำเภอ) — ราคาตัวละ '+PRICE+' บาท';
   if(!data.length){showToast('ไม่มีข้อมูล',true);return;}
 
+  var doc=new jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  ensureThaiFont(doc);
   var pageW=doc.internal.pageSize.getWidth();
+  var showMoney=type==='extra';
 
-  // Header block
   doc.setFillColor(10,92,72);
   doc.rect(0,0,pageW,24,'F');
   doc.setTextColor(255,255,255);
@@ -691,30 +661,46 @@ function expPDF(type){
   doc.text(RPT_SUBTITLE,pageW/2,17,{align:'center'});
   doc.setTextColor(0,0,0);
   doc.setFontSize(11);doc.setFont('Sarabun','bold');
-  doc.text(title2,pageW/2,31,{align:'center'});
+  doc.text(reportName,pageW/2,31,{align:'center',maxWidth:pageW-20});
   doc.setFont('Sarabun','normal');doc.setFontSize(9);
-  doc.text('วันที่ออกรายงาน: '+new Date().toLocaleDateString('th-TH'),14,31);
+  doc.text('วันที่ออกรายงาน: '+new Date().toLocaleDateString('th-TH'),14,38);
 
-  var commonStyles={font:'Sarabun',fontSize:9,cellPadding:2.2,lineColor:[209,213,219],lineWidth:0.15,valign:'middle'};
-  var commonHead={font:'Sarabun',fontStyle:'bold',fontSize:9,textColor:[255,255,255]};
+  var groups=groupByHosp(data);
+  var head=showMoney
+    ?[['#','ชื่อ-สกุล','โทรศัพท์','เพศ','รอบอก','ความยาว','จำนวน','เงิน(บาท)']]
+    :[['#','ชื่อ-สกุล','โทรศัพท์','เพศ','รอบอก','ความยาว','จำนวน']];
+  var body=[];
+  var n=0,grandQty=0,grandMoney=0;
+  groups.forEach(function(g){
+    var sectionRow=showMoney
+      ?[{content:'🏥 '+g.hosp+'   ('+g.rows.length+' คน / '+g.qty+' ตัว / '+fmt(g.money)+' บาท)',colSpan:8,styles:{fillColor:[225,245,238],textColor:[10,92,72],fontStyle:'bold',halign:'left'}}]
+      :[{content:'🏥 '+g.hosp+'   ('+g.rows.length+' คน / '+g.qty+' ตัว)',colSpan:7,styles:{fillColor:[225,245,238],textColor:[10,92,72],fontStyle:'bold',halign:'left'}}];
+    body.push(sectionRow);
+    g.rows.forEach(function(o){
+      n++;
+      var r=[n,o.name,o.phone||'-',o.g==='M'?'ชาย':'หญิง',o.ch+'"',o.ln+'"',o.qty];
+      if(showMoney)r.push(fmt(o.qty*PRICE));
+      body.push(r);
+    });
+    grandQty+=g.qty;grandMoney+=g.money;
+  });
 
-  if(type==='summary'){
-    var hmap={};orders.forEach(function(o){if(!hmap[o.dept])hmap[o.dept]={meet_m:0,meet_f:0,ex_m:0,ex_f:0,tot:0,money:0};if(o.type==='meet'&&o.g==='M')hmap[o.dept].meet_m+=o.qty;if(o.type==='meet'&&o.g==='F')hmap[o.dept].meet_f+=o.qty;if(o.type==='extra'&&o.g==='M')hmap[o.dept].ex_m+=o.qty;if(o.type==='extra'&&o.g==='F')hmap[o.dept].ex_f+=o.qty;hmap[o.dept].tot+=o.qty;hmap[o.dept].money+=o.type==='extra'?o.qty*PRICE:0;});
-    var keys=Object.keys(hmap);
-    var body=keys.map(function(k,i){var v=hmap[k];return[i+1,k,v.meet_m,v.meet_f,v.ex_m,v.ex_f,v.tot,v.money>0?fmt(v.money):'-'];});
-    var totRow=[['','รวมทั้งหมด',keys.reduce(function(s,k){return s+hmap[k].meet_m;},0),keys.reduce(function(s,k){return s+hmap[k].meet_f;},0),keys.reduce(function(s,k){return s+hmap[k].ex_m;},0),keys.reduce(function(s,k){return s+hmap[k].ex_f;},0),keys.reduce(function(s,k){return s+hmap[k].tot;},0),fmt(keys.reduce(function(s,k){return s+hmap[k].money;},0))]];
-    doc.autoTable({startY:36,head:[['#','ชื่อหน่วยบริการ','ประชุม-ชาย','ประชุม-หญิง','ซื้อเพิ่ม-ชาย','ซื้อเพิ่ม-หญิง','รวม(ตัว)','เงิน(บาท)']],body:body,foot:totRow,styles:commonStyles,headStyles:Object.assign({},commonHead,{fillColor:[10,92,72]}),footStyles:{font:'Sarabun',fontStyle:'bold',fillColor:[225,245,238],textColor:[10,92,72]},alternateRowStyles:{fillColor:[248,250,249]},columnStyles:{0:{halign:'center',cellWidth:10},1:{cellWidth:70},2:{halign:'right'},3:{halign:'right'},4:{halign:'right'},5:{halign:'right'},6:{halign:'right'},7:{halign:'right'}}});
-  } else if(type==='extra'){
-    var body=data.map(function(o,i){return[i+1,o.name,o.phone||'-',o.dept,o.g==='M'?'ชาย':'หญิง',o.ch+'"',o.qty,fmt(o.qty*PRICE)];});
-    var sumQty=data.reduce(function(s,o){return s+o.qty;},0),sumMoney=data.reduce(function(s,o){return s+o.qty*PRICE;},0);
-    doc.autoTable({startY:36,head:[['#','ชื่อ-สกุล','โทรศัพท์','หน่วยบริการ','เพศ','รอบอก','จำนวน','เงิน(บาท)']],body:body,foot:[['','','','','','รวม',sumQty,fmt(sumMoney)]],styles:commonStyles,headStyles:Object.assign({},commonHead,{fillColor:[180,83,9]}),footStyles:{font:'Sarabun',fontStyle:'bold',fillColor:[254,243,199],textColor:[180,83,9]},alternateRowStyles:{fillColor:[255,251,240]},columnStyles:{0:{halign:'center',cellWidth:10},4:{halign:'center'},5:{halign:'center'},6:{halign:'right'},7:{halign:'right'}}});
-  } else {
-    var body=data.map(function(o,i){return[i+1,o.name,o.phone||'-',o.dept,o.g==='M'?'ชาย':'หญิง',o.type==='meet'?'ลงทะเบียนประชุม':'สั่งซื้อเพิ่ม',o.ch+'"',o.qty];});
-    var sumQty=data.reduce(function(s,o){return s+o.qty;},0);
-    doc.autoTable({startY:36,head:[['#','ชื่อ-สกุล','โทรศัพท์','หน่วยบริการ','เพศ','ประเภท','รอบอก','จำนวน']],body:body,foot:[['','','','','','','รวม',sumQty]],styles:commonStyles,headStyles:Object.assign({},commonHead,{fillColor:[10,92,72]}),footStyles:{font:'Sarabun',fontStyle:'bold',fillColor:[225,245,238],textColor:[10,92,72]},alternateRowStyles:{fillColor:[248,250,249]},columnStyles:{0:{halign:'center',cellWidth:10},4:{halign:'center'},6:{halign:'center'},7:{halign:'right'}}});
-  }
+  var foot=showMoney
+    ?[['','','','','','รวมทั้งอำเภอ',grandQty,fmt(grandMoney)]]
+    :[['','','','','','รวมทั้งอำเภอ',grandQty]];
 
-  // Footer page numbers
+  doc.autoTable({
+    startY:42,
+    head:head,
+    body:body,
+    foot:foot,
+    styles:{font:'Sarabun',fontSize:9,cellPadding:2.2,lineColor:[209,213,219],lineWidth:0.15,valign:'middle'},
+    headStyles:{font:'Sarabun',fontStyle:'bold',fontSize:9,textColor:[255,255,255],fillColor:type==='meet'?[10,92,72]:[180,83,9]},
+    footStyles:{font:'Sarabun',fontStyle:'bold',fillColor:type==='meet'?[225,245,238]:[254,243,199],textColor:type==='meet'?[10,92,72]:[180,83,9]},
+    alternateRowStyles:{fillColor:[248,250,249]},
+    columnStyles:{0:{halign:'center',cellWidth:10},3:{halign:'center'},4:{halign:'center'},5:{halign:'center'},6:{halign:'right'},7:{halign:'right'}}
+  });
+
   var pageCount=doc.internal.getNumberOfPages();
   for(var p=1;p<=pageCount;p++){
     doc.setPage(p);
@@ -722,9 +708,10 @@ function expPDF(type){
     doc.text('หน้า '+p+' / '+pageCount,pageW-14,doc.internal.pageSize.getHeight()-6,{align:'right'});
   }
 
-  doc.save('รายงาน_'+title2.replace(/ /g,'_').replace(/[()]/g,'')+'_'+new Date().toISOString().slice(0,10)+'.pdf');
+  doc.save((type==='meet'?'รายงานลงทะเบียนประชุม_':'รายงานสั่งซื้อเพิ่ม_')+new Date().toISOString().slice(0,10)+'.pdf');
   showToast('ส่งออก PDF สำเร็จ',false);
 }
+
 
 var tTm;
 function showToast(msg,isErr){var t=document.getElementById('toast');t.className=isErr?'err':'ok';document.getElementById('tmsg').textContent=msg;clearTimeout(tTm);tTm=setTimeout(function(){t.className='';},3500);}
