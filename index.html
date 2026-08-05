@@ -411,36 +411,70 @@ var SD={M:{ch:[38,40,42,44,46,48,50,52,54,56],ln:[26,26.5,27,28,29,30,30,30,30,3
 var orders=[];
 var otyp='meet',editId=null,curH=null,pendingList=[];
 
-// Firebase
+// Firebase (defensive - won't break the app if it fails)
+var fbEnabled=false, db=null, ref=null;
 var firebaseConfig={apiKey:"AIzaSyBui7cyacK_ppOlDvpzndrPgKFzO0AY0R4",authDomain:"samakom2569-8743d.firebaseapp.com",databaseURL:"https://samakom2569-8743d-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"samakom2569-8743d",storageBucket:"samakom2569-8743d.firebasestorage.app",messagingSenderId:"890794447036",appId:"1:890794447036:web:e069d87179963321c140b9",measurementId:"G-J1PCB2T4K9"};
-firebase.initializeApp(firebaseConfig);
-var db=firebase.database();
-var ref=db.ref('shirt_orders');
 
 function showFB(s){
   var el=document.getElementById('fb-status');
   if(!el)return;
   if(s==='ok'){el.textContent='🟢 เชื่อมต่อ Firebase สำเร็จ — ข้อมูลบันทึก Real-time';el.style.color='#0A5C48';}
-  else if(s==='err'){el.textContent='🔴 ไม่สามารถเชื่อม Firebase — ใช้ข้อมูลในเครื่อง';el.style.color='#dc2626';}
-  else{el.textContent='⏳ กำลังเชื่อมต่อ...';el.style.color='#B45309';}
+  else if(s==='err'){el.textContent='🔴 ไม่สามารถเชื่อม Firebase — ใช้ข้อมูลในเครื่อง (localStorage)';el.style.color='#dc2626';}
+  else{el.textContent='⏳ กำลังเชื่อมต่อ Firebase...';el.style.color='#B45309';}
+}
+
+function initFirebaseSafe(){
+  try{
+    if(typeof firebase==='undefined'){throw new Error('Firebase SDK not loaded');}
+    firebase.initializeApp(firebaseConfig);
+    db=firebase.database();
+    ref=db.ref('shirt_orders');
+    fbEnabled=true;
+  }catch(e){
+    console.error('Firebase init failed:',e);
+    fbEnabled=false;
+    showFB('err');
+  }
 }
 
 function svFirebase(){
-  var d={};orders.forEach(function(o){d[o.id]=o;});
-  ref.set(d).catch(function(e){console.error(e);});
   try{localStorage.setItem('shirtOrders',JSON.stringify(orders));}catch(e){}
+  if(fbEnabled && ref){
+    try{
+      var d={};orders.forEach(function(o){d[o.id]=o;});
+      ref.set(d).catch(function(e){console.error('Firebase save error:',e);});
+    }catch(e){console.error(e);}
+  }
 }
 
 function loadFromFirebase(){
-  ref.on('value',function(snap){
-    var d=snap.val();
-    orders=d?Object.values(d).sort(function(a,b){return a.id-b.id;}):[];
-    showFB('ok');upd();renderDash();
-  },function(){
+  // Always load localStorage first so the app works immediately
+  try{orders=JSON.parse(localStorage.getItem('shirtOrders')||'[]');}catch(e){orders=[];}
+  upd();renderDash();
+
+  if(!fbEnabled || !ref){showFB('err');return;}
+
+  var timeoutId=setTimeout(function(){
     showFB('err');
-    try{orders=JSON.parse(localStorage.getItem('shirtOrders')||'[]');}catch(e){orders=[];}
-    upd();renderDash();
-  });
+  },6000);
+
+  try{
+    ref.on('value',function(snap){
+      clearTimeout(timeoutId);
+      var d=snap.val();
+      var fbOrders=d?Object.values(d).sort(function(a,b){return a.id-b.id;}):[];
+      orders=fbOrders;
+      showFB('ok');upd();renderDash();
+    },function(err){
+      clearTimeout(timeoutId);
+      console.error('Firebase read error:',err);
+      showFB('err');
+    });
+  }catch(e){
+    clearTimeout(timeoutId);
+    console.error(e);
+    showFB('err');
+  }
 }
 
 // Init filter
@@ -524,7 +558,7 @@ function renderDash(){
   if(!tops.length){ts.innerHTML='<p class="emp">ยังไม่มีข้อมูล</p>';}
   else ts.innerHTML=tops.map(function(r){return '<div class="br"><span class="bl">'+r.lb+'</span><div class="bw"><div class="bp" style="width:'+Math.round(r.qty/mx*100)+'%;background:'+(r.g==='M'?'#3B82F6':'#7C3AED')+'"></div></div><span class="bv">'+r.qty+'</span></div>';}).join('');
   var hg=document.getElementById('hosp-grid');
-  hg.innerHTML=HOSP.map(function(h){var qty=ds[h]||0,s=h.replace(/\\/g,'\\\\').replace(/'/g,"\\'");return '<div class="hi'+(qty?' has':'')+'" onclick="openHM(''+s+'')">'+'<div class="hd '+(qty?'dy':'dn')+'"></div><div class="hn">'+h+'</div>'+(qty?'<span class="hc">'+qty+' ตัว</span>':'<span style="font-size:11px;color:#9ca3af">ยังไม่สั่ง</span>')+'</div>';}).join('');
+  hg.innerHTML=HOSP.map(function(h,idx){var qty=ds[h]||0;return '<div class="hi'+(qty?' has':'')+'" onclick="openHM(HOSP['+idx+'])">'+'<div class="hd '+(qty?'dy':'dn')+'"></div><div class="hn">'+h+'</div>'+(qty?'<span class="hc">'+qty+' ตัว</span>':'<span style="font-size:11px;color:#9ca3af">ยังไม่สั่ง</span>')+'</div>';}).join('');
 }
 
 function openHM(name){curH=name;var rows=orders.filter(function(o){return o.dept===name;});document.getElementById('hosp-title').textContent=name+' — '+rows.length+' คน';var el=document.getElementById('hosp-body');if(!rows.length){el.innerHTML='<p class="emp">ยังไม่มีรายการ</p>';}else{el.innerHTML=rows.map(function(o){return '<div class="er"><div class="eav '+(o.g==='M'?'avm':'avf')+'">'+o.name.charAt(0)+'</div><div class="ein"><div class="enm">'+o.name+'</div><div class="emt">📞 '+(o.phone||'-')+' | '+(o.g==='M'?'ชาย':'หญิง')+' รอบอก '+o.ch+'" | '+o.qty+' ตัว'+(o.type==='extra'?' | 💰 '+fmt(o.qty*PRICE)+' บาท':'')+'</div><div class="ebt"><button class="bed" onclick="openEM('+o.id+')">✏ แก้ไข</button><button class="bde" onclick="delFH('+o.id+')">🗑 ลบ</button></div></div></div>';}).join('');}document.getElementById('hosp-modal').classList.add('on');document.getElementById('hosp-modal').scrollIntoView({behavior:'smooth',block:'start'});}
@@ -674,7 +708,7 @@ function expPDF(type){
 var tTm;
 function showToast(msg,isErr){var t=document.getElementById('toast');t.className=isErr?'err':'ok';document.getElementById('tmsg').textContent=msg;clearTimeout(tTm);tTm=setTimeout(function(){t.className='';},3500);}
 
-syncSz();upd();loadFromFirebase();
+syncSz();upd();renderDash();initFirebaseSafe();loadFromFirebase();
 </script>
 </body>
 </html>
