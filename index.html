@@ -141,6 +141,9 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
 .btn-exp-b{background:#1D4ED8;color:#fff}
 .btn-exp-b:hover{background:#2563EB}
 </style>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -153,6 +156,10 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
   <div class="nav-count" id="nstat">รวม 0 ตัว | 0 คน</div>
 </div>
 
+<div style="background:#E1F5EE;padding:6px 1.5rem;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px">
+  <span id="fb-status">⏳ กำลังเชื่อมต่อ Firebase...</span>
+  <span style="margin-left:auto;color:#6b7280">ฐานข้อมูล: SAMAKOM2569 | Real-time Sync</span>
+</div>
 <div class="tabs">
   <button class="tab on" onclick="goTab('dash')">📊 แดชบอร์ด</button>
   <button class="tab" onclick="goTab('entry')">✏️ บันทึกข้อมูล</button>
@@ -423,6 +430,66 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
 </div><!-- wrap -->
 
 <script>
+// ===== Firebase Config =====
+var firebaseConfig = {
+  apiKey: "AIzaSyBui7cyacK_ppOlDvpzndrPgKFzO0AY0R4",
+  authDomain: "samakom2569-8743d.firebaseapp.com",
+  databaseURL: "https://samakom2569-8743d-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "samakom2569-8743d",
+  storageBucket: "samakom2569-8743d.firebasestorage.app",
+  messagingSenderId: "890794447036",
+  appId: "1:890794447036:web:e069d87179963321c140b9",
+  measurementId: "G-J1PCB2T4K9"
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.database();
+var ordersRef = db.ref('shirt_orders');
+
+// ===== Firebase Functions =====
+function sv(){
+  // Save to localStorage as backup
+  try{localStorage.setItem('shirtOrders',JSON.stringify(orders));}catch(e){}
+  // Save to Firebase
+  var fbData = {};
+  orders.forEach(function(o){
+    fbData[o.id] = o;
+  });
+  ordersRef.set(fbData).then(function(){
+    console.log('Saved to Firebase');
+  }).catch(function(err){
+    console.error('Firebase save error:',err);
+  });
+}
+
+function loadFromFirebase(){
+  showStatus('loading');
+  ordersRef.on('value', function(snapshot){
+    var data = snapshot.val();
+    if(data){
+      orders = Object.values(data).sort(function(a,b){return a.id-b.id;});
+    } else {
+      orders = [];
+    }
+    upd();
+    renderDash();
+    showStatus('');
+  }, function(error){
+    console.error('Firebase load error:', error);
+    // Fallback to localStorage
+    try{orders=JSON.parse(localStorage.getItem('shirtOrders')||'[]');}catch(e){orders=[];}
+    upd();renderDash();
+    showStatus('offline');
+  });
+}
+
+function showStatus(s){
+  var el=document.getElementById('fb-status');
+  if(!el)return;
+  if(s==='loading'){el.textContent='⏳ กำลังโหลดข้อมูลจาก Firebase...';el.style.color='#B45309';}
+  else if(s==='offline'){el.textContent='⚠️ ออฟไลน์ — ใช้ข้อมูลในเครื่อง';el.style.color='#dc2626';}
+  else{el.textContent='🟢 เชื่อมต่อ Firebase สำเร็จ';el.style.color='#0A5C48';}
+}
+
 var PRICE=450;
 var HOSP=['รพ.สต.บ้านดงมะไฟสามัคคี','รพ.สต.บ้านฮางโฮง','รพ.สต.ธาตุเชิงชุม','รพสต.บ้านหนองปลาน้อย','รพสต.พังขว้างใต้','รพสต.บ้านโนนหอม','รพ.สต.นาคำ','รพ.สต.บ้านทับสอ','รพ.สต.บ้านดงขุมข้าว','รพ.สต.นาขาม','รพ.สต.บ้านโคกก่องใหญ่','รพ.สต.บ้านลาดกะเฌอ','รพ.สต.บ้านแมด','รพ.สต.บ้านม่วงลาย','รพสต.ดงพัฒนา','รพสต.คูสนาม','รพสต.บ้านเชียงเครือวัดใหญ่','รพ.สต.หนองลาดใต้','รพ.สต.ดอนแคนใต้','รพ.สต.บ้านดงมะไฟ','รพ.สต.บ้านโคกเลาะ','รพ.สต.บ้านหนองสนม','รพ.สต.บ้านหนองไผ่','รพ.สต.บ้านสร้างแก้วสมานมิตร'];
 var SD={
@@ -742,7 +809,9 @@ function showToast(msg,isErr){
   tTm=setTimeout(function(){t.className='';},3500);
 }
 
-syncSz();upd();renderDash();
+syncSz();
+// Load from Firebase on start
+loadFromFirebase();
 </script>
 </body>
 </html>
