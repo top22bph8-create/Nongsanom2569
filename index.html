@@ -329,9 +329,15 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
   <div class="card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:8px;flex-wrap:wrap">
       <div class="sec" style="margin:0">📋 รายการทั้งหมด</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn-sm" onclick="expExcel('all')">📊 Excel</button>
-        <button class="btn-sm btn-r" onclick="clrAll()">🗑 ล้างทั้งหมด</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <select id="import-type" style="padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:12px;color:#374151">
+          <option value="meet">นำเข้าเป็น: ลงทะเบียนประชุม</option>
+          <option value="extra">นำเข้าเป็น: สั่งซื้อเพิ่ม</option>
+        </select>
+        <button class="btn-sm" onclick="document.getElementById('import-file').click()">📥 นำเข้าจาก Excel</button>
+        <input type="file" id="import-file" accept=".xlsx,.xls" style="display:none" onchange="importExcelFile(this.files[0]);this.value='';">
+        <button class="btn-sm" onclick="expExcelList()">📊 Excel</button>
+        <button class="btn-sm" style="background:#0A5C48;color:#fff;border-color:#0A5C48" onclick="backupNow()">💾 สำรองข้อมูลเดี๋ยวนี้</button>
       </div>
     </div>
     <div class="fbar">
@@ -436,7 +442,7 @@ var orders=[];
 var otyp='meet',editId=null,curH=null,pendingList=[];
 
 // Firebase (defensive - won't break the app if it fails)
-var fbEnabled=false, db=null, ref=null;
+var fbEnabled=false, db=null, ref=null, backupRef=null;
 var firebaseConfig={apiKey:"AIzaSyBui7cyacK_ppOlDvpzndrPgKFzO0AY0R4",authDomain:"samakom2569-8743d.firebaseapp.com",databaseURL:"https://samakom2569-8743d-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"samakom2569-8743d",storageBucket:"samakom2569-8743d.firebasestorage.app",messagingSenderId:"890794447036",appId:"1:890794447036:web:e069d87179963321c140b9",measurementId:"G-J1PCB2T4K9"};
 
 function showFB(s){
@@ -453,6 +459,7 @@ function initFirebaseSafe(){
     firebase.initializeApp(firebaseConfig);
     db=firebase.database();
     ref=db.ref('shirt_orders');
+    backupRef=db.ref('shirt_backups');
     fbEnabled=true;
   }catch(e){
     console.error('Firebase init failed:',e);
@@ -469,6 +476,36 @@ function svFirebase(){
       ref.set(d).catch(function(e){console.error('Firebase save error:',e);});
     }catch(e){console.error(e);}
   }
+  autoBackup();
+}
+
+// ===== AUTO BACKUP (snapshot on every save, keeps last 40) =====
+function autoBackup(){
+  if(!fbEnabled || !backupRef)return;
+  try{
+    var key=String(Date.now());
+    backupRef.child(key).set({ts:Date.now(),tsLabel:new Date().toLocaleString('th-TH'),count:orders.length,data:orders}).then(function(){
+      backupRef.orderByKey().once('value',function(s){
+        var keys=[];s.forEach(function(c){keys.push(c.key);});
+        if(keys.length>40){
+          keys.slice(0,keys.length-40).forEach(function(k){backupRef.child(k).remove();});
+        }
+      });
+    }).catch(function(e){console.error('Auto-backup error:',e);});
+  }catch(e){console.error(e);}
+}
+
+function backupNow(){
+  try{
+    var payload=JSON.stringify(orders,null,2);
+    var blob=new Blob([payload],{type:'application/json'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;a.download='shirt_orders_backup_'+new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')+'.json';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('สำรองข้อมูลสำเร็จ: '+orders.length+' รายการ (ไฟล์ .json)',false);
+  }catch(e){console.error(e);showToast('สำรองข้อมูลไม่สำเร็จ',true);}
 }
 
 function loadFromFirebase(){
@@ -644,11 +681,9 @@ function renderList(){
   var f=orders.filter(function(o){var oa=(HOSP_INFO[o.dept]&&HOSP_INFO[o.dept].amphoe)||'';return(!av||oa===av)&&(!dv||o.dept===dv)&&(!gv||o.g===gv)&&(!tv||o.type===tv);});
   var el=document.getElementById('ol');
   if(!f.length){el.innerHTML='<p class="emp">ไม่พบรายการ</p>';return;}
-  el.innerHTML=f.map(function(o){return '<div class="oi"><div class="av '+(o.g==='M'?'avm':'avf')+'">'+o.name.charAt(0)+'</div><div class="oin"><div class="oname">'+o.name+'</div><div class="ometa">'+o.dept+' | 📞 '+(o.phone||'-')+' | '+(o.type==='meet'?'ลงทะเบียนประชุม':'🛒 สั่งซื้อเพิ่ม')+'</div></div><div style="text-align:right;flex-shrink:0;margin-right:8px"><span class="osiz">'+(o.g==='M'?'ชาย':'หญิง')+' '+o.ch+'"</span>'+(o.type==='extra'?'<div style="font-size:11px;color:#B45309;font-weight:700">'+fmt(o.qty*PRICE)+' บาท</div>':'')+'<div style="font-size:11px;color:#6b7280">'+o.qty+' ตัว</div></div><button class="btn-sm" style="padding:4px 8px;margin-right:4px" onclick="openEML('+o.id+')">✏</button><button class="bdl" onclick="delOrd('+o.id+')">✕</button></div>';}).join('');
+  el.innerHTML=f.map(function(o){return '<div class="oi"><div class="av '+(o.g==='M'?'avm':'avf')+'">'+o.name.charAt(0)+'</div><div class="oin"><div class="oname">'+o.name+'</div><div class="ometa">'+o.dept+' | 📞 '+(o.phone||'-')+' | '+(o.type==='meet'?'ลงทะเบียนประชุม':'🛒 สั่งซื้อเพิ่ม')+'</div></div><div style="text-align:right;flex-shrink:0;margin-right:8px"><span class="osiz">'+(o.g==='M'?'ชาย':'หญิง')+' '+o.ch+'"</span>'+(o.type==='extra'?'<div style="font-size:11px;color:#B45309;font-weight:700">'+fmt(o.qty*PRICE)+' บาท</div>':'')+'<div style="font-size:11px;color:#6b7280">'+o.qty+' ตัว</div></div><button class="btn-sm" style="padding:4px 8px" onclick="openEML('+o.id+')">✏ แก้ไข</button></div>';}).join('');
 }
 function openEML(id){goTab('dash');setTimeout(function(){openEM(id);},100);}
-function delOrd(id){orders=orders.filter(function(o){return o.id!==id;});svFirebase();upd();renderList();}
-function clrAll(){if(!orders.length)return;if(confirm('ล้างรายการทั้งหมด?')){orders=[];svFirebase();upd();renderList();}}
 
 function groupByHosp(data){
   // Returns array in fixed HOSP order (only hospitals that have data), each with rows + subtotal
@@ -763,6 +798,96 @@ function expExcelByHosp(type){
 
   XLSX.writeFile(wb,(type==='meet'?'รายงานลงทะเบียนประชุม_':'รายงานสั่งซื้อเพิ่ม_')+new Date().toISOString().slice(0,10)+'.xlsx');
   showToast('ส่งออก Excel สำเร็จ: '+data.length+' รายการ',false);
+}
+
+// ===== LIST PAGE: EXPORT (flat, respects current filters) =====
+function expExcelList(){
+  var av=document.getElementById('fl-amphoe').value,dv=document.getElementById('fl-d').value,gv=document.getElementById('fl-g').value,tv=document.getElementById('fl-t').value;
+  var f=orders.filter(function(o){var oa=(HOSP_INFO[o.dept]&&HOSP_INFO[o.dept].amphoe)||'';return(!av||oa===av)&&(!dv||o.dept===dv)&&(!gv||o.g===gv)&&(!tv||o.type===tv);});
+  if(!f.length){showToast('ไม่มีข้อมูลสำหรับส่งออก',true);return;}
+  var HEADERS=['ลำดับที่','ชื่อ-สกุล','หมายเลขโทรศัพท์','หน่วยบริการ','เพศ','รอบอก(นิ้ว)','ความยาว(นิ้ว)','ประเภท','จำนวน(ตัว)','รวมเงิน(บาท)'];
+  var ncols=HEADERS.length;
+  var rows=[[RPT_TITLE],[RPT_SUBTITLE],['รายการทั้งหมด'],['วันที่ออกรายงาน: '+new Date().toLocaleDateString('th-TH')],[],HEADERS];
+  var n=0,grandQty=0,grandMoney=0;
+  f.forEach(function(o){
+    n++;
+    var money=o.type==='extra'?o.qty*PRICE:0;
+    grandQty+=o.qty;grandMoney+=money;
+    rows.push([n,o.name,o.phone||'-',o.dept,o.g==='M'?'ชาย':'หญิง',o.ch,o.ln,o.type==='meet'?'ลงทะเบียนประชุม':'สั่งซื้อเพิ่ม',o.qty,money||'']);
+  });
+  rows.push(['','','','','','','','รวมทั้งหมด',grandQty,grandMoney]);
+  var wb=XLSX.utils.book_new();
+  var ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:8},{wch:26},{wch:16},{wch:28},{wch:8},{wch:12},{wch:12},{wch:16},{wch:12},{wch:14}];
+  ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:ncols-1}},{s:{r:1,c:0},e:{r:1,c:ncols-1}},{s:{r:2,c:0},e:{r:2,c:ncols-1}},{s:{r:3,c:0},e:{r:3,c:ncols-1}}];
+  XLSX.utils.book_append_sheet(wb,ws,'รายการทั้งหมด');
+  XLSX.writeFile(wb,'รายการทั้งหมด_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  showToast('ส่งออก Excel สำเร็จ: '+f.length+' รายการ',false);
+}
+
+// ===== LIST PAGE: IMPORT FROM EXCEL (for data recovery) =====
+function importExcelFile(file){
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=new Uint8Array(e.target.result);
+      var wb=XLSX.read(data,{type:'array'});
+      var ws=wb.Sheets[wb.SheetNames[0]];
+      var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      var headerIdx=-1,headerRow=null;
+      for(var i=0;i<Math.min(rows.length,15);i++){
+        if(rows[i]&&rows[i].some(function(c){return String(c).trim()==='ชื่อ-สกุล';})){headerIdx=i;headerRow=rows[i];break;}
+      }
+      if(headerIdx===-1){showToast('ไม่พบหัวตาราง "ชื่อ-สกุล" ในไฟล์ที่เลือก กรุณาตรวจสอบรูปแบบไฟล์',true);return;}
+      function colIdx(parts){
+        for(var c=0;c<headerRow.length;c++){
+          var h=String(headerRow[c]).trim();
+          if(parts.some(function(p){return h.indexOf(p)!==-1;}))return c;
+        }
+        return -1;
+      }
+      var iName=colIdx(['ชื่อ-สกุล']),iPhone=colIdx(['โทรศัพท์']),iDept=colIdx(['หน่วยบริการ']),iGender=colIdx(['เพศ']),iChest=colIdx(['รอบอก']),iLen=colIdx(['ความยาว']),iQty=colIdx(['จำนวน']);
+      var type=document.getElementById('import-type').value;
+
+      var existKey={};
+      orders.forEach(function(o){existKey[o.name+'|'+o.dept+'|'+o.type+'|'+o.ch+'|'+o.ln]=true;});
+
+      var added=0,skippedDup=0,skippedInvalid=0;
+      for(var r=headerIdx+1;r<rows.length;r++){
+        var row=rows[r];
+        if(!row||!row.length)continue;
+        var nameVal=iName>=0?String(row[iName]||'').trim():'';
+        if(!nameVal||nameVal==='รวมทั้งหมด')continue;
+        var deptVal=iDept>=0?String(row[iDept]||'').trim():'';
+        var genderTxt=iGender>=0?String(row[iGender]||'').trim():'';
+        var g=(genderTxt==='หญิง')?'F':'M';
+        var chestVal=iChest>=0?parseFloat(row[iChest]):NaN;
+        var lenVal=iLen>=0?parseFloat(row[iLen]):NaN;
+        var qtyVal=iQty>=0?parseInt(row[iQty]):1;
+        if(!deptVal||isNaN(chestVal)||!qtyVal){skippedInvalid++;continue;}
+        var sizeData=SD[g],si=0,bestDiff=Infinity;
+        sizeData.ch.forEach(function(c,idx){var diff=Math.abs(c-chestVal);if(diff<bestDiff){bestDiff=diff;si=idx;}});
+        var finalCh=sizeData.ch[si],finalLn=isNaN(lenVal)?sizeData.ln[si]:lenVal;
+        var dupKey=nameVal+'|'+deptVal+'|'+type+'|'+finalCh+'|'+finalLn;
+        if(existKey[dupKey]){skippedDup++;continue;}
+        existKey[dupKey]=true;
+        var phoneVal=iPhone>=0?String(row[iPhone]||'').trim():'';
+        if(phoneVal==='-')phoneVal='';
+        orders.push({id:Date.now()+added,name:nameVal,phone:phoneVal,dept:deptVal,g:g,si:si,ch:finalCh,ln:finalLn,qty:qtyVal||1,type:type});
+        added++;
+      }
+      if(added){svFirebase();upd();renderDash();renderList();}
+      var msg='นำเข้าสำเร็จ '+added+' รายการ';
+      if(skippedDup)msg+=' (ข้ามซ้ำ '+skippedDup+')';
+      if(skippedInvalid)msg+=' (ข้อมูลไม่ครบ '+skippedInvalid+' แถว)';
+      showToast(msg,added===0);
+    }catch(err){
+      console.error(err);
+      showToast('นำเข้าไม่สำเร็จ: ไฟล์ไม่ถูกต้องหรือรูปแบบไม่ตรงตามที่ระบบรองรับ',true);
+    }
+  };
+  reader.readAsArrayBuffer(file);
 }
 
 var tTm;
