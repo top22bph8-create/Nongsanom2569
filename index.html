@@ -134,6 +134,10 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
 #toast{display:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;margin-bottom:1rem;align-items:center;gap:8px}
 #toast.ok{display:flex;background:#0F7A62;color:#fff}
 #toast.err{display:flex;background:#dc2626;color:#fff}
+/* SAVE POPUP */
+#save-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.85);background:#0A5C48;color:#fff;padding:22px 36px;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.3);font-size:15px;font-weight:700;display:flex;align-items:center;gap:14px;z-index:9999;opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;text-align:left;max-width:90vw}
+#save-popup.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#save-popup .spi{font-size:30px;flex-shrink:0}
 .emp{text-align:center;padding:2rem;color:#9ca3af;font-size:13px}
 .sec{font-size:15px;font-weight:700;color:#111827;margin-bottom:1rem}
 .d2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem}
@@ -200,6 +204,7 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
 
 <div class="wrap">
 <div id="toast"><span id="tmsg"></span></div>
+<div id="save-popup"><span class="spi">✅</span><span id="save-popup-msg">บันทึกข้อมูลสำเร็จ</span></div>
 
 <!-- ===== DASHBOARD ===== -->
 <div class="pn on" id="pn-dash">
@@ -263,6 +268,14 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
     <div style="display:flex;gap:8px;justify-content:flex-end">
       <button class="btn-sm" onclick="closeEM()">ยกเลิก</button>
       <button class="btn-sm" style="background:#0A5C48;color:#fff;border-color:#0A5C48" onclick="saveEdit()">✓ บันทึก</button>
+    </div>
+  </div>
+  <div class="modal-box" id="confirm-del-modal">
+    <div class="modal-head"><h3>⚠️ ยืนยันการลบข้อมูล</h3><button class="bcl" onclick="closeDelConfirm()">✕</button></div>
+    <div id="confirm-del-body" style="font-size:14px;line-height:1.6;margin-bottom:1.25rem;background:#fef2f2;border:1.5px solid #fecaca;border-radius:10px;padding:12px 14px"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn-sm" onclick="closeDelConfirm()">ยกเลิก</button>
+      <button class="btn-sm" style="background:#dc2626;color:#fff;border-color:#dc2626" onclick="confirmDelYes()">🗑 ยืนยันลบ</button>
     </div>
   </div>
   <div class="card">
@@ -330,9 +343,9 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:8px;flex-wrap:wrap">
       <div class="sec" style="margin:0">📋 รายการทั้งหมด</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <select id="import-type" style="padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:12px;color:#374151">
-          <option value="meet">นำเข้าเป็น: ลงทะเบียนประชุม</option>
-          <option value="extra">นำเข้าเป็น: สั่งซื้อเพิ่ม</option>
+        <select id="import-type" title="ใช้เฉพาะกรณีไฟล์ไม่มีคอลัมน์ 'ประเภท' — ถ้ามีคอลัมน์นี้อยู่แล้วระบบจะอ่านจากไฟล์อัตโนมัติ" style="padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:12px;color:#374151">
+          <option value="meet">ถ้าไม่มีคอลัมน์ประเภท ใช้: ลงทะเบียนประชุม</option>
+          <option value="extra">ถ้าไม่มีคอลัมน์ประเภท ใช้: สั่งซื้อเพิ่ม</option>
         </select>
         <button class="btn-sm" onclick="document.getElementById('import-file').click()">📥 นำเข้าจาก Excel</button>
         <input type="file" id="import-file" accept=".xlsx,.xls" style="display:none" onchange="importExcelFile(this.files[0]);this.value='';">
@@ -504,12 +517,15 @@ function autoBackup(){
   try{
     var key=String(Date.now());
     backupRef.child(key).set({ts:Date.now(),tsLabel:new Date().toLocaleString('th-TH'),count:orders.length,data:orders}).then(function(){
-      backupRef.orderByKey().once('value',function(s){
-        var keys=[];s.forEach(function(c){keys.push(c.key);});
-        if(keys.length>40){
-          keys.slice(0,keys.length-40).forEach(function(k){backupRef.child(k).remove();});
-        }
-      });
+      // ตรวจสอบ/ลบสำรองเก่าเป็นบางครั้ง (ไม่ต้องทำทุกครั้งเพื่อลดภาระ ให้บันทึกข้อมูลเร็วขึ้น)
+      if(Math.random()<0.2){
+        backupRef.orderByKey().once('value',function(s){
+          var keys=[];s.forEach(function(c){keys.push(c.key);});
+          if(keys.length>40){
+            keys.slice(0,keys.length-40).forEach(function(k){backupRef.child(k).remove();});
+          }
+        });
+      }
     }).catch(function(e){console.error('Auto-backup error:',e);});
   }catch(e){console.error(e);}
 }
@@ -635,9 +651,20 @@ function saveData(){
   var g=document.getElementById('f-gender').value,si=parseInt(document.getElementById('f-size').value)||0,qty=Math.max(1,parseInt(document.getElementById('f-qty').value)||1),d=SD[g];
   var name=getFullName(),phone=document.getElementById('f-phone').value.trim();
   orders.push({id:Date.now(),name:name,phone:phone,dept:dept,g:g,si:si,ch:d.ch[si],ln:d.ln[si],qty:qty,type:otyp});
-  svFirebase();upd();
+  upd();
   document.getElementById('f-fname').value='';document.getElementById('f-lname').value='';document.getElementById('f-phone').value='';document.getElementById('f-qty').value=1;
-  showToast('บันทึก "'+name+'" สำเร็จ!',false);
+  // แสดงป๊อปอัพให้ผู้บันทึกทราบทันที ไม่ต้องรอ Firebase (ทำงานเบื้องหลัง)
+  showSavePopup('บันทึกข้อมูล "'+name+'" สำเร็จ');
+  svFirebase();
+}
+
+var spTm;
+function showSavePopup(msg){
+  var p=document.getElementById('save-popup');
+  document.getElementById('save-popup-msg').textContent=msg||'บันทึกข้อมูลสำเร็จ';
+  p.classList.add('on');
+  clearTimeout(spTm);
+  spTm=setTimeout(function(){p.classList.remove('on');},1400);
 }
 
 function upd(){
@@ -653,7 +680,7 @@ function goTab(id){
   document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
   document.getElementById('pn-'+id).classList.add('on');
   ['dash','entry','list','report','shirt','size'].forEach(function(t,i){if(t===id)document.querySelectorAll('.tab')[i].classList.add('on');});
-  closeHM();closeEM();
+  closeHM();closeEM();closeDelConfirm();
   if(id==='dash')renderDash();
   if(id==='list')renderList();
   if(id==='report')renderReport();
@@ -686,13 +713,30 @@ function renderDash(){
   hg.innerHTML=scopeHosp.map(function(h){var qty=ds[h]||0,phone=(HOSP_INFO[h]&&HOSP_INFO[h].phone)||'';var hEsc=h.replace(/'/g,"\\'");return '<div class="hi'+(qty?' has':'')+'" onclick="openHM(\''+hEsc+'\')">'+'<div class="hd '+(qty?'dy':'dn')+'"></div><div class="hn-wrap"><div class="hn">'+h+'</div>'+(phone?'<div class="hph">📞 '+phone+'</div>':'')+'</div>'+(qty?'<span class="hc">'+qty+' ตัว</span>':'<span style="font-size:11px;color:#9ca3af">ยังไม่สั่ง</span>')+'</div>';}).join('');
 }
 
-function openHM(name){curH=name;var rows=orders.filter(function(o){return o.dept===name;});document.getElementById('hosp-title').textContent=name+' — '+rows.length+' คน';var el=document.getElementById('hosp-body');if(!rows.length){el.innerHTML='<p class="emp">ยังไม่มีรายการ</p>';}else{el.innerHTML=rows.map(function(o){return '<div class="er"><div class="eav '+(o.g==='M'?'avm':'avf')+'">'+o.name.charAt(0)+'</div><div class="ein"><div class="enm">'+o.name+'</div><div class="emt">📞 '+(o.phone||'-')+' | '+(o.g==='M'?'ชาย':'หญิง')+' รอบอก '+o.ch+'" | '+o.qty+' ตัว'+(o.type==='extra'?' | 💰 '+fmt(o.qty*PRICE)+' บาท':'')+'</div><div class="ebt"><button class="bed" onclick="openEM('+o.id+')">✏ แก้ไข</button><button class="bde" onclick="delFH('+o.id+')">🗑 ลบ</button></div></div></div>';}).join('');}document.getElementById('hosp-modal').classList.add('on');document.getElementById('hosp-modal').scrollIntoView({behavior:'smooth',block:'start'});}
+function openHM(name){curH=name;var rows=orders.filter(function(o){return o.dept===name;});document.getElementById('hosp-title').textContent=name+' — '+rows.length+' คน';var el=document.getElementById('hosp-body');if(!rows.length){el.innerHTML='<p class="emp">ยังไม่มีรายการ</p>';}else{el.innerHTML=rows.map(function(o){return '<div class="er"><div class="eav '+(o.g==='M'?'avm':'avf')+'">'+o.name.charAt(0)+'</div><div class="ein"><div class="enm">'+o.name+'</div><div class="emt">📞 '+(o.phone||'-')+' | '+(o.g==='M'?'ชาย':'หญิง')+' รอบอก '+o.ch+'" | '+o.qty+' ตัว'+(o.type==='extra'?' | 💰 '+fmt(o.qty*PRICE)+' บาท':'')+'</div><div class="ebt"><button class="bed" onclick="openEM('+o.id+')">✏ แก้ไข</button><button class="bde" onclick="askDelFH('+o.id+')">🗑 ลบ</button></div></div></div>';}).join('');}document.getElementById('hosp-modal').classList.add('on');document.getElementById('hosp-modal').scrollIntoView({behavior:'smooth',block:'start'});}
 function closeHM(){document.getElementById('hosp-modal').classList.remove('on');curH=null;}
-function delFH(id){if(!confirm('ลบรายการนี้?'))return;orders=orders.filter(function(o){return o.id!==id;});svFirebase();upd();if(curH)openHM(curH);renderDash();}
+var pendingDelId=null;
+function askDelFH(id){
+  var o=orders.find(function(x){return x.id===id;});
+  if(!o)return;
+  pendingDelId=id;
+  document.getElementById('confirm-del-body').innerHTML='ต้องการลบรายการของ <b>'+o.name+'</b><br>หน่วยบริการ: '+o.dept+' | '+(o.g==='M'?'ชาย':'หญิง')+' รอบอก '+o.ch+'" | '+o.qty+' ตัว<br><br>การลบนี้<b>ไม่สามารถย้อนกลับได้</b> กรุณายืนยันอีกครั้ง';
+  document.getElementById('confirm-del-modal').classList.add('on');
+}
+function closeDelConfirm(){document.getElementById('confirm-del-modal').classList.remove('on');pendingDelId=null;}
+function confirmDelYes(){
+  if(pendingDelId==null)return;
+  var id=pendingDelId;
+  orders=orders.filter(function(o){return o.id!==id;});
+  closeDelConfirm();
+  upd();if(curH)openHM(curH);renderDash();
+  showToast('ลบข้อมูลสำเร็จ',false);
+  svFirebase();
+}
 
 function openEM(id){var o=orders.find(function(x){return x.id===id;});if(!o)return;editId=id;var pre='นาย',nm=o.name;if(nm.startsWith('นางสาว')){pre='นางสาว';nm=nm.slice(6);}else if(nm.startsWith('นาง')){pre='นาง';nm=nm.slice(3);}else if(nm.startsWith('นาย')){pre='นาย';nm=nm.slice(3);}var parts=nm.trim().split(' ');document.getElementById('e-prefix').value=pre;document.getElementById('e-fname').value=parts[0]||'';document.getElementById('e-lname').value=parts.slice(1).join(' ')||'';document.getElementById('e-phone').value=o.phone||'';document.getElementById('e-dept').value=o.dept;document.getElementById('e-gender').value=o.g;syncESz(o.g,o.si);document.getElementById('e-qty').value=o.qty;document.getElementById('e-type').value=o.type;document.getElementById('edit-modal').classList.add('on');document.getElementById('edit-modal').scrollIntoView({behavior:'smooth',block:'start'});}
 function syncESz(g,si){g=g||document.getElementById('e-gender').value;var d=SD[g],s=document.getElementById('e-size');s.innerHTML='';d.ch.forEach(function(c,i){var o=document.createElement('option');o.value=i;o.textContent=c+'" (ยาว '+d.ln[i]+'")';s.appendChild(o);});if(si!==undefined)s.value=si;}
-function saveEdit(){var o=orders.find(function(x){return x.id===editId;});if(!o)return;var pre=document.getElementById('e-prefix').value,fn=document.getElementById('e-fname').value.trim(),ln=document.getElementById('e-lname').value.trim(),g=document.getElementById('e-gender').value,si=parseInt(document.getElementById('e-size').value)||0,d=SD[g];o.name=pre+fn+(ln?' '+ln:'');o.phone=document.getElementById('e-phone').value.trim();o.dept=document.getElementById('e-dept').value.trim()||o.dept;o.g=g;o.si=si;o.ch=d.ch[si];o.ln=d.ln[si];o.qty=Math.max(1,parseInt(document.getElementById('e-qty').value)||1);o.type=document.getElementById('e-type').value;svFirebase();closeEM();showToast('แก้ไขสำเร็จ',false);upd();renderDash();}
+function saveEdit(){var o=orders.find(function(x){return x.id===editId;});if(!o)return;var pre=document.getElementById('e-prefix').value,fn=document.getElementById('e-fname').value.trim(),ln=document.getElementById('e-lname').value.trim(),g=document.getElementById('e-gender').value,si=parseInt(document.getElementById('e-size').value)||0,d=SD[g];o.name=pre+fn+(ln?' '+ln:'');o.phone=document.getElementById('e-phone').value.trim();o.dept=document.getElementById('e-dept').value.trim()||o.dept;o.g=g;o.si=si;o.ch=d.ch[si];o.ln=d.ln[si];o.qty=Math.max(1,parseInt(document.getElementById('e-qty').value)||1);o.type=document.getElementById('e-type').value;closeEM();upd();renderDash();showSavePopup('แก้ไขข้อมูล "'+o.name+'" สำเร็จ');svFirebase();}
 function closeEM(){document.getElementById('edit-modal').classList.remove('on');editId=null;}
 
 function renderList(){
@@ -919,11 +963,15 @@ function importExcelFile(file){
         }
         return -1;
       }
-      var iName=colIdx(['ชื่อ-สกุล']),iPhone=colIdx(['โทรศัพท์']),iDept=colIdx(['หน่วยบริการ']),iGender=colIdx(['เพศ']),iChest=colIdx(['รอบอก']),iLen=colIdx(['ความยาว']),iQty=colIdx(['จำนวน']);
-      var type=document.getElementById('import-type').value;
+      // อ่านหัวตารางแล้วจับคู่คอลัมน์ให้ตรงกับข้อมูลของเราอัตโนมัติ
+      var iName=colIdx(['ชื่อ-สกุล']),iPhone=colIdx(['โทรศัพท์']),iDept=colIdx(['หน่วยบริการ']),iGender=colIdx(['เพศ']),iChest=colIdx(['รอบอก']),iLen=colIdx(['ความยาว']),iQty=colIdx(['จำนวน']),iType=colIdx(['ประเภท']);
+      var fallbackType=document.getElementById('import-type').value;
 
+      // คีย์ตรวจซ้ำ: ชื่อ-สกุล + หน่วยบริการ + เบอร์โทร (ตามที่ระบุ)
+      function normPhone(p){return String(p||'').replace(/[^0-9]/g,'');}
+      function makeDupKey(name,dept,phone){return name.trim()+'|'+dept.trim()+'|'+normPhone(phone);}
       var existKey={};
-      orders.forEach(function(o){existKey[o.name+'|'+o.dept+'|'+o.type+'|'+o.ch+'|'+o.ln]=true;});
+      orders.forEach(function(o){existKey[makeDupKey(o.name,o.dept,o.phone)]=true;});
 
       var added=0,skippedDup=0,skippedInvalid=0;
       for(var r=headerIdx+1;r<rows.length;r++){
@@ -938,15 +986,22 @@ function importExcelFile(file){
         var lenVal=iLen>=0?parseFloat(row[iLen]):NaN;
         var qtyVal=iQty>=0?parseInt(row[iQty]):1;
         if(!deptVal||isNaN(chestVal)||!qtyVal){skippedInvalid++;continue;}
+        var phoneVal=iPhone>=0?String(row[iPhone]||'').trim():'';
+        if(phoneVal==='-')phoneVal='';
+        var dupKey=makeDupKey(nameVal,deptVal,phoneVal);
+        if(existKey[dupKey]){skippedDup++;continue;}
+        existKey[dupKey]=true;
         var sizeData=SD[g],si=0,bestDiff=Infinity;
         sizeData.ch.forEach(function(c,idx){var diff=Math.abs(c-chestVal);if(diff<bestDiff){bestDiff=diff;si=idx;}});
         var finalCh=sizeData.ch[si],finalLn=isNaN(lenVal)?sizeData.ln[si]:lenVal;
-        var dupKey=nameVal+'|'+deptVal+'|'+type+'|'+finalCh+'|'+finalLn;
-        if(existKey[dupKey]){skippedDup++;continue;}
-        existKey[dupKey]=true;
-        var phoneVal=iPhone>=0?String(row[iPhone]||'').trim():'';
-        if(phoneVal==='-')phoneVal='';
-        orders.push({id:Date.now()+added,name:nameVal,phone:phoneVal,dept:deptVal,g:g,si:si,ch:finalCh,ln:finalLn,qty:qtyVal||1,type:type});
+        // ถ้าไฟล์มีคอลัมน์ "ประเภท" อยู่แล้ว ใช้ค่าจากแถวนั้นแทนตัวเลือกที่ผู้ใช้กำหนด
+        var rowType=fallbackType;
+        if(iType>=0){
+          var typeTxt=String(row[iType]||'').trim();
+          if(typeTxt.indexOf('เพิ่ม')!==-1)rowType='extra';
+          else if(typeTxt.indexOf('ประชุม')!==-1)rowType='meet';
+        }
+        orders.push({id:Date.now()+added,name:nameVal,phone:phoneVal,dept:deptVal,g:g,si:si,ch:finalCh,ln:finalLn,qty:qtyVal||1,type:rowType});
         added++;
       }
       if(added){svFirebase();upd();renderDash();renderList();}
