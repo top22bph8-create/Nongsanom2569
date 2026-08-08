@@ -164,6 +164,7 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
 .racc-total{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:10px;background:#111827;color:#fff;font-size:13px;font-weight:700;margin-top:4px}
 .racc-bar.paid{background:linear-gradient(135deg,#15803D,#22C55E)}
 .racc-bar.unpaid{background:linear-gradient(135deg,#DC2626,#F87171)}
+.racc-bar.partial{background:linear-gradient(135deg,#CA8A04,#FBBF24);color:#3f2d00}
 .racc-name.multi{white-space:normal!important;line-height:1.6}
 .notice-banner{background:#fff7ed;border:1.5px solid #fed7aa;border-radius:10px;padding:10px 14px;margin-bottom:1rem;font-size:13px;color:#9a3412;display:flex;align-items:center;gap:8px}
 .slip-thumb{width:70px;height:70px;object-fit:cover;border-radius:8px;border:1.5px solid #e5e7eb;display:block}
@@ -662,7 +663,9 @@ function getPaymentSummary(dept){
   var owed=orders.filter(function(o){return o.dept===dept && o.type==='extra';}).reduce(function(s,o){return s+o.qty*PRICE;},0);
   var paid=payments.filter(function(p){return p.dept===dept;}).reduce(function(s,p){return s+p.amount;},0);
   var remaining=Math.max(0,owed-paid);
-  return {owed:owed,paid:paid,remaining:remaining,isPaid:owed>0 && paid>=owed};
+  var isPaid=owed>0 && paid>=owed;
+  var status=isPaid?'paid':(paid>0?'partial':'none'); // paid=เขียว, partial=เหลือง(ชำระบางส่วน), none=แดง(ยังไม่ชำระ)
+  return {owed:owed,paid:paid,remaining:remaining,isPaid:isPaid,status:status};
 }
 function uploadSlipToImgbb(file){
   return new Promise(function(resolve,reject){
@@ -722,7 +725,8 @@ function renderPayment(){
   depts.forEach(function(dept,gi){
     var sum=getPaymentSummary(dept);
     var barId='pay-g'+gi;
-    var statusTxt=sum.isPaid?'✅ ชำระครบแล้ว':'⏳ ค้างชำระ '+fmt(sum.remaining)+' บาท';
+    var statusIcon=sum.status==='paid'?'✅':(sum.status==='partial'?'🟡':'💳');
+    var statusTxt=sum.status==='paid'?'✅ ชำระครบแล้ว':(sum.status==='partial'?'🟡 ชำระบางส่วนแล้ว '+fmt(sum.paid)+' บาท ค้างอีก '+fmt(sum.remaining)+' บาท':'⏳ ยังไม่ได้ชำระ ('+fmt(sum.owed)+' บาท)');
     var deptEsc=dept.replace(/'/g,"\\'");
     var peopleRows=extraByDept[dept].map(function(o){
       return '<tr><td><span class="pay-person-name" title="กดเพื่อแนบสลิปของ '+o.name+'" onclick="attachSlip(\''+deptEsc+'\','+o.id+','+(o.qty*PRICE)+')">📎 '+o.name+'</span></td><td>'+o.qty+' ตัว</td><td class="num">'+fmt(o.qty*PRICE)+' บาท</td></tr>';
@@ -732,8 +736,8 @@ function renderPayment(){
       return '<div style="text-align:center"><a href="'+p.slipUrl+'" target="_blank"><img src="'+p.slipUrl+'" class="slip-thumb"></a><div style="font-size:10px;color:#6b7280;margin-top:2px">'+fmt(p.amount)+' บาท</div><button style="border:none;background:none;color:#dc2626;font-size:10px;cursor:pointer;text-decoration:underline" onclick="removePayment('+p.id+')">ลบ</button></div>';
     }).join('')+'</div>') : '<p style="font-size:12px;color:#9ca3af;margin-top:10px">ยังไม่มีสลิปแนบ</p>';
     html+='<div class="racc" id="'+barId+'">'+
-      '<div class="racc-bar '+(sum.isPaid?'paid':'unpaid')+'" style="cursor:default">'+
-        '<span class="racc-ic">'+(sum.isPaid?'✅':'💳')+'</span>'+
+      '<div class="racc-bar '+(sum.status==='paid'?'paid':(sum.status==='partial'?'partial':'unpaid'))+'" style="cursor:default">'+
+        '<span class="racc-ic">'+statusIcon+'</span>'+
         '<span class="racc-name multi pay-name-click" title="กดเพื่อแนบสลิปรวมทั้ง รพ.สต." onclick="attachSlip(\''+deptEsc+'\',null,'+sum.remaining+')">📎 '+dept+' <span style="opacity:.85;font-weight:500;font-size:12px">(อ.'+amphoeOf(dept)+')</span><br><span style="font-size:11px;font-weight:600;opacity:.95">ยอดที่ต้องชำระ '+fmt(sum.owed)+' บาท — '+statusTxt+'</span></span>'+
         '<button class="racc-arrow-btn" onclick="toggleRptGroup(\''+barId+'\')">▾</button>'+
       '</div>'+
@@ -1109,8 +1113,8 @@ function renderPackingReport(){
     var barId='rpt-pack-hosp-g'+gi;
     var hasExtra=g.rows.some(function(o){return o.type==='extra';});
     var sum=hasExtra?getPaymentSummary(g.hosp):null;
-    var barClass=hasExtra?(sum.isPaid?'paid':'unpaid'):'';
-    var metaTxt=g.rows.length+' คน · '+g.qty+' ตัว'+(hasExtra?(' · '+(sum.isPaid?'✅ ชำระครบ':'⏳ ค้าง '+fmt(sum.remaining)+' บ.')):'');
+    var barClass=hasExtra?(sum.status==='paid'?'paid':(sum.status==='partial'?'partial':'unpaid')):'';
+    var metaTxt=g.rows.length+' คน · '+g.qty+' ตัว'+(hasExtra?(' · '+(sum.status==='paid'?'✅ ชำระครบ':(sum.status==='partial'?'🟡 ชำระบางส่วน (ค้าง '+fmt(sum.remaining)+' บ.)':'⏳ ยังไม่ชำระ '+fmt(sum.owed)+' บ.'))):'');
     var bodyRows=g.rows.map(function(o,ri){
       return '<tr><td style="color:#9ca3af">'+(ri+1)+'</td><td style="font-weight:600">'+o.name+'</td><td><span class="chip '+(o.g==='M'?'cm':'cf')+'">'+(o.g==='M'?'ชาย':'หญิง')+'</span></td><td>'+o.ch+'" / '+o.ln+'"</td><td class="num" style="font-weight:700">'+o.qty+'</td><td style="font-size:11px;color:#6b7280">'+(o.type==='meet'?'ประชุม':'สั่งเพิ่ม')+'</td><td style="text-align:center;font-size:16px">☐</td></tr>';
     }).join('');
@@ -1139,7 +1143,8 @@ function expPackingExcel(){
   groups.forEach(function(g){
     var hasExtra=g.rows.some(function(o){return o.type==='extra';});
     var payTxt=hasExtra?getPaymentSummary(g.hosp):null;
-    rows.push(['รพ.สต.: '+g.hosp+'  (อ.'+amphoeOf(g.hosp)+')   โทร '+((HOSP_INFO[g.hosp]&&HOSP_INFO[g.hosp].phone)||'-')+'   —  '+g.rows.length+' คน / '+g.qty+' ตัว'+(hasExtra?('   |  สถานะชำระเงิน: '+(payTxt.isPaid?'ชำระครบแล้ว':'ค้างชำระ '+fmt(payTxt.remaining)+' บาท')):'')]);
+    var payLabel=hasExtra?(payTxt.status==='paid'?'ชำระครบแล้ว':(payTxt.status==='partial'?'ชำระบางส่วน (ค้าง '+fmt(payTxt.remaining)+' บาท)':'ยังไม่ชำระ ('+fmt(payTxt.owed)+' บาท)')):'';
+    rows.push(['รพ.สต.: '+g.hosp+'  (อ.'+amphoeOf(g.hosp)+')   โทร '+((HOSP_INFO[g.hosp]&&HOSP_INFO[g.hosp].phone)||'-')+'   —  '+g.rows.length+' คน / '+g.qty+' ตัว'+(hasExtra?('   |  สถานะชำระเงิน: '+payLabel):'')]);
     rows.push(HEADERS);
     g.rows.forEach(function(o,ri){
       rows.push([ri+1,o.name,o.g==='M'?'ชาย':'หญิง',o.ch,o.ln,o.qty,o.type==='meet'?'ลงทะเบียนประชุม':'สั่งซื้อเพิ่ม','']);
@@ -1211,8 +1216,9 @@ async function expPackingPDF(){
       var tableStartY=50;
       if(hasExtra){
         doc.setFont('Sarabun','bold');
-        if(sum.isPaid){doc.setTextColor(21,128,61);}else{doc.setTextColor(220,38,38);}
-        doc.text('สถานะชำระเงิน: '+(sum.isPaid?('ชำระครบแล้ว ('+fmt(sum.owed)+' บาท)'):('ค้างชำระ '+fmt(sum.remaining)+' บาท จากยอด '+fmt(sum.owed)+' บาท (ชำระแล้ว '+fmt(sum.paid)+' บาท)')),14,50);
+        if(sum.status==='paid'){doc.setTextColor(21,128,61);}else if(sum.status==='partial'){doc.setTextColor(180,131,0);}else{doc.setTextColor(220,38,38);}
+        var payMsg=sum.status==='paid'?('ชำระครบแล้ว ('+fmt(sum.owed)+' บาท)'):(sum.status==='partial'?('ชำระบางส่วนแล้ว '+fmt(sum.paid)+' บาท ค้างอีก '+fmt(sum.remaining)+' บาท จากยอด '+fmt(sum.owed)+' บาท'):('ยังไม่ได้ชำระ ('+fmt(sum.owed)+' บาท)'));
+        doc.text('สถานะชำระเงิน: '+payMsg,14,50);
         doc.setTextColor(0,0,0);doc.setFont('Sarabun','normal');
         tableStartY=56;
       }
