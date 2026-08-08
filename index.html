@@ -469,6 +469,7 @@ var HOSP_INFO={};
 var HOSP=[];
 AMPHOE_LIST.forEach(function(a){AMPHOE_DATA[a].forEach(function(p){HOSP.push(p[0]);HOSP_INFO[p[0]]={amphoe:a,phone:p[1]};});});
 var curDashAmphoe='ALL';
+function amphoeOf(dept){return (HOSP_INFO[dept] && HOSP_INFO[dept].amphoe) || '-';}
 var SD={M:{ch:[38,40,42,44,46,48,50,52,54,56],ln:[26,26.5,27,28,29,30,30,30,30,31]},F:{ch:[34,36,38,40,42,44,46,48,50,52,54],ln:[22.5,23,23,24,25,26,26,26,26.5,26.5,27]}};
 var orders=[];
 var otyp='meet',editId=null,curH=null,pendingList=[];
@@ -512,11 +513,18 @@ function svFirebase(){
 }
 
 // ===== AUTO BACKUP (snapshot on every save, keeps last 40) =====
+function ordersWithAmphoe(){
+  return orders.map(function(o){
+    var c={};for(var k in o){c[k]=o[k];}
+    c.amphoe=amphoeOf(o.dept);
+    return c;
+  });
+}
 function autoBackup(){
   if(!fbEnabled || !backupRef)return;
   try{
     var key=String(Date.now());
-    backupRef.child(key).set({ts:Date.now(),tsLabel:new Date().toLocaleString('th-TH'),count:orders.length,data:orders}).then(function(){
+    backupRef.child(key).set({ts:Date.now(),tsLabel:new Date().toLocaleString('th-TH'),count:orders.length,data:ordersWithAmphoe()}).then(function(){
       // ตรวจสอบ/ลบสำรองเก่าเป็นบางครั้ง (ไม่ต้องทำทุกครั้งเพื่อลดภาระ ให้บันทึกข้อมูลเร็วขึ้น)
       if(Math.random()<0.2){
         backupRef.orderByKey().once('value',function(s){
@@ -532,7 +540,7 @@ function autoBackup(){
 
 function backupNow(){
   try{
-    var payload=JSON.stringify(orders,null,2);
+    var payload=JSON.stringify(ordersWithAmphoe(),null,2);
     var blob=new Blob([payload],{type:'application/json'});
     var url=URL.createObjectURL(blob);
     var a=document.createElement('a');
@@ -851,7 +859,7 @@ function renderHospTable(elId,groups,showMoney){
     }).join('');
     html+='<div class="racc" id="'+barId+'">'+
       '<button class="racc-bar'+(showMoney?' ex':'')+'" onclick="toggleRptGroup(\''+barId+'\')">'+
-        '<span class="racc-ic">🏥</span><span class="racc-name">'+g.hosp+'</span>'+
+        '<span class="racc-ic">🏥</span><span class="racc-name">'+g.hosp+' <span style="opacity:.8;font-weight:500;font-size:12px">(อ.'+amphoeOf(g.hosp)+')</span></span>'+
         '<span class="racc-meta">'+metaTxt+'</span><span class="racc-arrow">▾</span>'+
       '</button>'+
       '<div class="racc-body"><div class="racc-body-in"><div class="tw"><table class="rt">'+
@@ -884,8 +892,8 @@ function expExcelByHosp(type){
   var groups=groupByHosp(data);
   var showMoney=type==='extra';
   var HEADERS=showMoney
-    ?['ลำดับที่','ชื่อ-สกุล','หมายเลขโทรศัพท์','หน่วยบริการ','เพศ','รอบอก(นิ้ว)','ความยาว(นิ้ว)','จำนวน(ตัว)','ราคาเสื้อ(บาท/ตัว)','รวมเงิน(บาท)']
-    :['ลำดับที่','ชื่อ-สกุล','หมายเลขโทรศัพท์','หน่วยบริการ','เพศ','รอบอก(นิ้ว)','ความยาว(นิ้ว)','จำนวน(ตัว)'];
+    ?['ลำดับที่','ชื่อ-สกุล','หมายเลขโทรศัพท์','หน่วยบริการ','อำเภอ','เพศ','รอบอก(นิ้ว)','ความยาว(นิ้ว)','จำนวน(ตัว)','ราคาเสื้อ(บาท/ตัว)','รวมเงิน(บาท)']
+    :['ลำดับที่','ชื่อ-สกุล','หมายเลขโทรศัพท์','หน่วยบริการ','อำเภอ','เพศ','รอบอก(นิ้ว)','ความยาว(นิ้ว)','จำนวน(ตัว)'];
   var ncols=HEADERS.length;
 
   var rows=[[RPT_TITLE],[RPT_SUBTITLE],[reportName],['วันที่ออกรายงาน: '+new Date().toLocaleDateString('th-TH')],[],HEADERS];
@@ -893,7 +901,7 @@ function expExcelByHosp(type){
   groups.forEach(function(g){
     g.rows.forEach(function(o){
       n++;
-      var r=[n,o.name,o.phone||'-',o.dept,o.g==='M'?'ชาย':'หญิง',o.ch,o.ln,o.qty];
+      var r=[n,o.name,o.phone||'-',o.dept,amphoeOf(o.dept),o.g==='M'?'ชาย':'หญิง',o.ch,o.ln,o.qty];
       if(showMoney)r.push(PRICE,o.qty*PRICE);
       rows.push(r);
     });
@@ -907,8 +915,8 @@ function expExcelByHosp(type){
   var wb=XLSX.utils.book_new();
   var ws=XLSX.utils.aoa_to_sheet(rows);
   ws['!cols']=showMoney
-    ?[{wch:8},{wch:26},{wch:16},{wch:28},{wch:8},{wch:12},{wch:12},{wch:12},{wch:16},{wch:14}]
-    :[{wch:8},{wch:26},{wch:16},{wch:28},{wch:8},{wch:12},{wch:12},{wch:12}];
+    ?[{wch:8},{wch:26},{wch:16},{wch:28},{wch:16},{wch:8},{wch:12},{wch:12},{wch:12},{wch:16},{wch:14}]
+    :[{wch:8},{wch:26},{wch:16},{wch:28},{wch:16},{wch:8},{wch:12},{wch:12},{wch:12}];
   ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:ncols-1}},{s:{r:1,c:0},e:{r:1,c:ncols-1}},{s:{r:2,c:0},e:{r:2,c:ncols-1}},{s:{r:3,c:0},e:{r:3,c:ncols-1}}];
   XLSX.utils.book_append_sheet(wb,ws,type==='meet'?'ลงทะเบียนประชุม':'สั่งซื้อเพิ่ม');
 
@@ -921,7 +929,7 @@ function expExcelList(){
   var av=document.getElementById('fl-amphoe').value,dv=document.getElementById('fl-d').value,gv=document.getElementById('fl-g').value,tv=document.getElementById('fl-t').value;
   var f=orders.filter(function(o){var oa=(HOSP_INFO[o.dept]&&HOSP_INFO[o.dept].amphoe)||'';return(!av||oa===av)&&(!dv||o.dept===dv)&&(!gv||o.g===gv)&&(!tv||o.type===tv);});
   if(!f.length){showToast('ไม่มีข้อมูลสำหรับส่งออก',true);return;}
-  var HEADERS=['ลำดับที่','ชื่อ-สกุล','หมายเลขโทรศัพท์','หน่วยบริการ','เพศ','รอบอก(นิ้ว)','ความยาว(นิ้ว)','ประเภท','จำนวน(ตัว)','รวมเงิน(บาท)'];
+  var HEADERS=['ลำดับที่','ชื่อ-สกุล','หมายเลขโทรศัพท์','หน่วยบริการ','อำเภอ','เพศ','รอบอก(นิ้ว)','ความยาว(นิ้ว)','ประเภท','จำนวน(ตัว)','รวมเงิน(บาท)'];
   var ncols=HEADERS.length;
   var rows=[[RPT_TITLE],[RPT_SUBTITLE],['รายการทั้งหมด'],['วันที่ออกรายงาน: '+new Date().toLocaleDateString('th-TH')],[],HEADERS];
   var n=0,grandQty=0,grandMoney=0;
@@ -929,12 +937,12 @@ function expExcelList(){
     n++;
     var money=o.type==='extra'?o.qty*PRICE:0;
     grandQty+=o.qty;grandMoney+=money;
-    rows.push([n,o.name,o.phone||'-',o.dept,o.g==='M'?'ชาย':'หญิง',o.ch,o.ln,o.type==='meet'?'ลงทะเบียนประชุม':'สั่งซื้อเพิ่ม',o.qty,money||'']);
+    rows.push([n,o.name,o.phone||'-',o.dept,amphoeOf(o.dept),o.g==='M'?'ชาย':'หญิง',o.ch,o.ln,o.type==='meet'?'ลงทะเบียนประชุม':'สั่งซื้อเพิ่ม',o.qty,money||'']);
   });
-  rows.push(['','','','','','','','รวมทั้งหมด',grandQty,grandMoney]);
+  rows.push(['','','','','','','','','รวมทั้งหมด',grandQty,grandMoney]);
   var wb=XLSX.utils.book_new();
   var ws=XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols']=[{wch:8},{wch:26},{wch:16},{wch:28},{wch:8},{wch:12},{wch:12},{wch:16},{wch:12},{wch:14}];
+  ws['!cols']=[{wch:8},{wch:26},{wch:16},{wch:28},{wch:16},{wch:8},{wch:12},{wch:12},{wch:16},{wch:12},{wch:14}];
   ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:ncols-1}},{s:{r:1,c:0},e:{r:1,c:ncols-1}},{s:{r:2,c:0},e:{r:2,c:ncols-1}},{s:{r:3,c:0},e:{r:3,c:ncols-1}}];
   XLSX.utils.book_append_sheet(wb,ws,'รายการทั้งหมด');
   XLSX.writeFile(wb,'รายการทั้งหมด_'+new Date().toISOString().slice(0,10)+'.xlsx');
