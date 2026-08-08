@@ -423,6 +423,7 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
       <div>วิธีแนบสลิป: กดที่ <b>ชื่อ รพ.สต.</b> เพื่อแนบสลิป<b>รวมทั้งหน่วย</b> หรือกดที่ <b>ชื่อผู้สั่งจอง</b> ในรายชื่อด้านล่าง เพื่อแนบสลิป<b>รายบุคคล</b></div>
       <div style="font-size:22px;margin-top:4px;animation:bounceDown 1.4s infinite">⬇️</div>
     </div>
+    <div class="mrow" id="pay-stats"></div>
     <div class="fbar">
       <select id="pay-amphoe" onchange="onPayAmphoeChange()"><option value="__all__">ทุกอำเภอ</option></select>
       <select id="pay-hosp" onchange="renderPayment()"><option value="__all__">ทุก รพ.สต.</option></select>
@@ -719,6 +720,32 @@ function renderPayment(){
     return (!av||av==='__all__'||amp===av)&&(!hv||hv==='__all__'||d===hv);
   });
   depts.sort(function(a,b){return HOSP.indexOf(a)-HOSP.indexOf(b);});
+
+  // ===== แถบสรุปแดชบอร์ดการชำระเงิน =====
+  var statsEl=document.getElementById('pay-stats');
+  var totalPeople=0,paidPeople=0,totalOwed=0,totalPaidAmt=0;
+  depts.forEach(function(dept){
+    var sum=getPaymentSummary(dept);
+    var people=extraByDept[dept];
+    totalPeople+=people.length;
+    totalOwed+=sum.owed;
+    totalPaidAmt+=sum.paid;
+    if(sum.status==='paid'){
+      paidPeople+=people.length;
+    }else{
+      var paidIds={};
+      payments.filter(function(p){return p.dept===dept && p.personId;}).forEach(function(p){paidIds[p.personId]=true;});
+      people.forEach(function(o){if(paidIds[o.id])paidPeople++;});
+    }
+  });
+  var totalRemaining=Math.max(0,totalOwed-totalPaidAmt);
+  statsEl.innerHTML=
+    '<div class="mc mc-b"><div class="mn">'+totalPeople+'</div><div class="ml">คนสั่งซื้อเพิ่ม</div></div>'+
+    '<div class="mc mc-g"><div class="mn">'+paidPeople+'</div><div class="ml">คนชำระแล้ว (โดยประมาณ)</div></div>'+
+    '<div class="mc mc-p"><div class="mn">'+fmt(totalOwed)+'</div><div class="ml">ยอดรวมทั้งหมด (บาท)</div></div>'+
+    '<div class="mc mc-t"><div class="mn">'+fmt(totalPaidAmt)+'</div><div class="ml">ยอดที่ชำระแล้ว (บาท)</div></div>'+
+    '<div class="mc mc-r"><div class="mn">'+fmt(totalRemaining)+'</div><div class="ml">ยอดค้างชำระ (บาท)</div></div>';
+
   var el=document.getElementById('pay-list');
   if(!depts.length){el.innerHTML='<p class="emp">ไม่มีรายการสั่งซื้อเพิ่มในขอบเขตที่เลือก</p>';return;}
   var html='';
@@ -729,23 +756,27 @@ function renderPayment(){
     var statusTxt=sum.status==='paid'?'✅ ชำระครบแล้ว':(sum.status==='partial'?'🟡 ชำระบางส่วนแล้ว '+fmt(sum.paid)+' บาท ค้างอีก '+fmt(sum.remaining)+' บาท':'⏳ ยังไม่ได้ชำระ ('+fmt(sum.owed)+' บาท)');
     var deptEsc=dept.replace(/'/g,"\\'");
     var peopleRows=extraByDept[dept].map(function(o){
-      return '<tr><td><span class="pay-person-name" title="กดเพื่อแนบสลิปของ '+o.name+'" onclick="attachSlip(\''+deptEsc+'\','+o.id+','+(o.qty*PRICE)+')">📎 '+o.name+'</span></td><td>'+o.qty+' ตัว</td><td class="num">'+fmt(o.qty*PRICE)+' บาท</td></tr>';
+      return '<tr><td style="font-weight:600">'+o.name+'</td><td>'+o.qty+' ตัว</td><td class="num" style="text-align:center">'+fmt(o.qty*PRICE)+' บาท</td><td style="text-align:right"><button class="btn-sm" style="padding:5px 12px" onclick="attachSlip(\''+deptEsc+'\','+o.id+','+(o.qty*PRICE)+')">📎 แนบสลิป</button></td></tr>';
     }).join('');
     var slipsForDept=payments.filter(function(p){return p.dept===dept;});
     var slipsHtml=slipsForDept.length?('<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">'+slipsForDept.map(function(p){
       return '<div style="text-align:center"><a href="'+p.slipUrl+'" target="_blank"><img src="'+p.slipUrl+'" class="slip-thumb"></a><div style="font-size:10px;color:#6b7280;margin-top:2px">'+fmt(p.amount)+' บาท</div><button style="border:none;background:none;color:#dc2626;font-size:10px;cursor:pointer;text-decoration:underline" onclick="removePayment('+p.id+')">ลบ</button></div>';
     }).join('')+'</div>') : '<p style="font-size:12px;color:#9ca3af;margin-top:10px">ยังไม่มีสลิปแนบ</p>';
     html+='<div class="racc" id="'+barId+'">'+
-      '<div class="racc-bar '+(sum.status==='paid'?'paid':(sum.status==='partial'?'partial':'unpaid'))+'" style="cursor:default">'+
+      '<button class="racc-bar '+(sum.status==='paid'?'paid':(sum.status==='partial'?'partial':'unpaid'))+'" onclick="toggleRptGroup(\''+barId+'\')">'+
         '<span class="racc-ic">'+statusIcon+'</span>'+
-        '<span class="racc-name multi pay-name-click" title="กดเพื่อแนบสลิปรวมทั้ง รพ.สต." onclick="attachSlip(\''+deptEsc+'\',null,'+sum.remaining+')">📎 '+dept+' <span style="opacity:.85;font-weight:500;font-size:12px">(อ.'+amphoeOf(dept)+')</span><br><span style="font-size:11px;font-weight:600;opacity:.95">ยอดที่ต้องชำระ '+fmt(sum.owed)+' บาท — '+statusTxt+'</span></span>'+
-        '<button class="racc-arrow-btn" onclick="toggleRptGroup(\''+barId+'\')">▾</button>'+
-      '</div>'+
+        '<span class="racc-name multi">'+dept+' <span style="opacity:.85;font-weight:500;font-size:12px">(อ.'+amphoeOf(dept)+')</span><br><span style="font-size:11px;font-weight:600;opacity:.95">ยอดที่ต้องชำระ '+fmt(sum.owed)+' บาท — '+statusTxt+'</span></span>'+
+        '<span class="racc-arrow">▾</span>'+
+      '</button>'+
       '<div class="racc-body"><div class="racc-body-in">'+
         '<div class="tw"><table class="rt">'+
-          '<tr><th>ชื่อ-สกุล (กดชื่อเพื่อแนบสลิป)</th><th>จำนวน</th><th class="num">ยอดที่ต้องชำระ</th></tr>'+
+          '<tr><th>ชื่อ-สกุล (ผู้สั่งจอง)</th><th>จำนวน</th><th style="text-align:center">ยอดที่ต้องชำระ</th><th></th></tr>'+
           peopleRows+
         '</table></div>'+
+        '<div style="margin-top:12px;padding-top:12px;border-top:1px dashed #e5e7eb;text-align:center">'+
+          '<div style="font-size:12px;color:#6b7280;margin-bottom:8px">หากโอนเงินรวมทีเดียวสำหรับทุกคนใน รพ.สต. นี้ ให้แนบสลิปที่นี่:</div>'+
+          '<button class="btn-sm" style="background:#0A5C48;color:#fff;border-color:#0A5C48" onclick="attachSlip(\''+deptEsc+'\',null,'+sum.remaining+')">📎 แนบสลิปรวมทั้ง รพ.สต. (คงเหลือ '+fmt(sum.remaining)+' บาท)</button>'+
+        '</div>'+
         slipsHtml+
       '</div></div>'+
     '</div>';
