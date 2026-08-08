@@ -445,13 +445,20 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
       <div style="display:flex;align-items:center;gap:6px">
         <span style="font-size:12px;color:#6b7280;font-weight:600">จาก</span>
         <input type="date" id="rpt-date-from-d" onchange="onRptDateRangeChange()" style="padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:13px" title="วัน/เดือน/ปี เริ่มต้น">
-        <input type="time" id="rpt-date-from-t" onchange="onRptDateRangeChange()" style="padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:13px" title="ชั่วโมง:นาที เริ่มต้น (ค่าเริ่มต้น 00:00)">
+        <select id="rpt-date-from-h" onchange="onRptDateRangeChange()" style="padding:7px 6px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:13px"></select>
+        <span style="font-size:13px;color:#6b7280">:</span>
+        <select id="rpt-date-from-m" onchange="onRptDateRangeChange()" style="padding:7px 6px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:13px"></select>
+        <span style="font-size:10px;color:#9ca3af">(24 ชม.)</span>
       </div>
       <div style="display:flex;align-items:center;gap:6px">
         <span style="font-size:12px;color:#6b7280;font-weight:600">ถึง</span>
         <input type="date" id="rpt-date-to-d" onchange="onRptDateRangeChange()" style="padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:13px" title="วัน/เดือน/ปี สิ้นสุด">
-        <input type="time" id="rpt-date-to-t" onchange="onRptDateRangeChange()" style="padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:13px" title="ชั่วโมง:นาที สิ้นสุด (ค่าเริ่มต้น 23:59)">
+        <select id="rpt-date-to-h" onchange="onRptDateRangeChange()" style="padding:7px 6px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:13px"></select>
+        <span style="font-size:13px;color:#6b7280">:</span>
+        <select id="rpt-date-to-m" onchange="onRptDateRangeChange()" style="padding:7px 6px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:13px"></select>
+        <span style="font-size:10px;color:#9ca3af">(24 ชม.)</span>
       </div>
+      <button class="btn-sm" style="background:#0A5C48;color:#fff;border-color:#0A5C48" onclick="showRptFilteredData()">🔍 แสดงข้อมูล</button>
       <button class="btn-sm" onclick="clearRptDateRange()">✕ ล้างตัวกรอง</button>
     </div>
     <div id="rpt-date-range-info" style="font-size:11px;color:#0A5C48;font-weight:700;margin-top:8px"></div>
@@ -1151,12 +1158,25 @@ function getRptScopeSet(type){
 
 // ===== กรองข้อมูลตามช่วงเวลาที่บันทึก (ใช้ร่วมกันทั้ง 4 รายงาน) =====
 // id ของแต่ละรายการคือ Date.now() ตอนบันทึก จึงใช้เป็นเวลาบันทึกได้โดยตรง
+function fillHourMinuteSelects(){
+  ['rpt-date-from-h','rpt-date-to-h'].forEach(function(id){
+    var sel=document.getElementById(id);
+    for(var h=0;h<24;h++){var o=document.createElement('option');o.value=String(h).padStart(2,'0');o.textContent=String(h).padStart(2,'0');sel.appendChild(o);}
+  });
+  ['rpt-date-from-m','rpt-date-to-m'].forEach(function(id){
+    var sel=document.getElementById(id);
+    for(var m=0;m<60;m++){var o=document.createElement('option');o.value=String(m).padStart(2,'0');o.textContent=String(m).padStart(2,'0');sel.appendChild(o);}
+  });
+  document.getElementById('rpt-date-from-h').value='00';document.getElementById('rpt-date-from-m').value='00';
+  document.getElementById('rpt-date-to-h').value='23';document.getElementById('rpt-date-to-m').value='59';
+}
+fillHourMinuteSelects();
 function getRptDateRange(){
-  var fd=document.getElementById('rpt-date-from-d').value,ft=document.getElementById('rpt-date-from-t').value;
-  var td=document.getElementById('rpt-date-to-d').value,tt=document.getElementById('rpt-date-to-t').value;
+  var fd=document.getElementById('rpt-date-from-d').value,fh=document.getElementById('rpt-date-from-h').value,fm=document.getElementById('rpt-date-from-m').value;
+  var td=document.getElementById('rpt-date-to-d').value,th=document.getElementById('rpt-date-to-h').value,tm=document.getElementById('rpt-date-to-m').value;
   // ถ้าใส่แค่วันที่ไม่ได้ระบุเวลา ให้ถือว่าเริ่มต้น 00:00 น. และสิ้นสุด 23:59 น. ของวันนั้นโดยอัตโนมัติ
-  var fromTs=fd?new Date(fd+'T'+(ft||'00:00')).getTime():null;
-  var toTs=td?new Date(td+'T'+(tt||'23:59')).getTime():null;
+  var fromTs=fd?new Date(fd+'T'+(fh||'00')+':'+(fm||'00')).getTime():null;
+  var toTs=td?new Date(td+'T'+(th||'23')+':'+(tm||'59')).getTime():null;
   return {from:fromTs,to:toTs};
 }
 function inRptDateRange(o){
@@ -1177,10 +1197,29 @@ function onRptDateRangeChange(){
 }
 function clearRptDateRange(){
   document.getElementById('rpt-date-from-d').value='';
-  document.getElementById('rpt-date-from-t').value='';
+  document.getElementById('rpt-date-from-h').value='00';
+  document.getElementById('rpt-date-from-m').value='00';
   document.getElementById('rpt-date-to-d').value='';
-  document.getElementById('rpt-date-to-t').value='';
+  document.getElementById('rpt-date-to-h').value='23';
+  document.getElementById('rpt-date-to-m').value='59';
   onRptDateRangeChange();
+}
+function showRptFilteredData(){
+  var r=getRptDateRange();
+  onRptDateRangeChange(); // อัปเดตข้อมูลตามตัวกรองปัจจุบันก่อน
+  if(r.from||r.to){
+    // มีการกำหนดช่วงเวลา — เปิดแถบหลักและแถบย่อยของทุกรายงานให้อัตโนมัติ เพื่อดูผลลัพธ์ได้ทันทีโดยไม่ต้องกดเอง
+    ['rpt-meet-master','rpt-extra-master','rpt-pack-master'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el)el.classList.add('open');
+    });
+    toggleAllRpt('rpt-meet-hosp',true);
+    toggleAllRpt('rpt-extra-hosp',true);
+    toggleAllRpt('rpt-pack-hosp',true);
+    showToast('แสดงข้อมูลตามช่วงเวลาที่กำหนดแล้ว',false);
+  }else{
+    showToast('ยังไม่ได้กำหนดช่วงเวลา — กดที่แถบ "รายชื่อ รพ.สต. ทั้งหมด" ของแต่ละรายงานเพื่อแสดง/ซ่อนเอง',false);
+  }
 }
 
 function renderReport(){
