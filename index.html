@@ -237,6 +237,7 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
       </select>
     </div>
   </div>
+  <div id="d-unmatched" style="display:none;background:#fef3c7;border:1.5px solid #fde68a;border-radius:10px;padding:10px 14px;margin-bottom:1rem;font-size:12px;color:#92400e;line-height:1.6"></div>
   <div class="mrow">
     <div class="mc mc-g"><div class="mn" id="d-tot">0</div><div class="ml">เสื้อทั้งหมด (ตัว)</div></div>
     <div class="mc mc-b"><div class="mn" id="d-m">0</div><div class="ml">เสื้อชาย (ตัว)</div></div>
@@ -251,11 +252,13 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
         <div style="background:#E1F5EE;border-radius:8px;padding:14px;text-align:center">
           <div style="font-size:22px;font-weight:700;color:#0A5C48" id="d-meet">0</div>
-          <div style="font-size:11px;color:#6b7280">ลงทะเบียนประชุม</div>
+          <div style="font-size:11px;color:#6b7280">ลงทะเบียนประชุม (ตัว)</div>
+          <div style="font-size:11px;color:#0A5C48;font-weight:700;margin-top:2px" id="d-meet-p">0 คน</div>
         </div>
         <div style="background:#fef3c7;border-radius:8px;padding:14px;text-align:center">
           <div style="font-size:22px;font-weight:700;color:#B45309" id="d-ex">0</div>
-          <div style="font-size:11px;color:#6b7280">สั่งซื้อเพิ่ม</div>
+          <div style="font-size:11px;color:#6b7280">สั่งซื้อเพิ่ม (ตัว)</div>
+          <div style="font-size:11px;color:#B45309;font-weight:700;margin-top:2px" id="d-ex-p">0 คน</div>
         </div>
       </div>
       <div id="typebars"></div>
@@ -944,14 +947,31 @@ function renderDash(){
   if(!document.getElementById('amphoe-chips').innerHTML)renderAmphoeChips();
   var scopeHosp=curDashAmphoe==='ALL'?HOSP:AMPHOE_DATA[curDashAmphoe].map(function(p){return p[0];});
   var scopeSet={};scopeHosp.forEach(function(h){scopeSet[h]=true;});
-  var scopeOrders=orders.filter(function(o){return scopeSet[o.dept];});
+  // เมื่อดู "ทั้งหมดทุกอำเภอ" ให้นับออเดอร์ทุกรายการโดยไม่กรองชื่อหน่วยบริการ
+  // เพื่อให้ตัวเลขตรงกับหน้า "รายการ" เสมอ แม้จะมีบางรายการที่ dept ไม่ตรงกับชื่อ รพ.สต. ปัจจุบัน
+  // (เช่น ชื่อเก่าก่อนแก้ไข หรือกรอกชื่อเองแบบ "อื่นๆ")
+  var scopeOrders=curDashAmphoe==='ALL'?orders:orders.filter(function(o){return scopeSet[o.dept];});
+  var unmatched=curDashAmphoe==='ALL'?orders.filter(function(o){return !scopeSet[o.dept];}):[];
 
   var tot=scopeOrders.reduce(function(s,o){return s+o.qty;},0);
   var male=scopeOrders.filter(function(o){return o.g==='M';}).reduce(function(s,o){return s+o.qty;},0);
-  var meet=scopeOrders.filter(function(o){return o.type==='meet';}).reduce(function(s,o){return s+o.qty;},0);
+  var meetOrders=scopeOrders.filter(function(o){return o.type==='meet';}),extraOrders=scopeOrders.filter(function(o){return o.type==='extra';});
+  var meet=meetOrders.reduce(function(s,o){return s+o.qty;},0);
   var extra=tot-meet;
-  var money=scopeOrders.filter(function(o){return o.type==='extra';}).reduce(function(s,o){return s+o.qty*PRICE;},0);
+  var money=extraOrders.reduce(function(s,o){return s+o.qty*PRICE;},0);
   document.getElementById('d-tot').textContent=tot;document.getElementById('d-m').textContent=male;document.getElementById('d-f').textContent=tot-male;document.getElementById('d-p').textContent=scopeOrders.length;document.getElementById('d-meet').textContent=meet;document.getElementById('d-ex').textContent=extra;document.getElementById('d-money').textContent=fmt(money);
+  if(document.getElementById('d-meet-p'))document.getElementById('d-meet-p').textContent=meetOrders.length+' คน';
+  if(document.getElementById('d-ex-p'))document.getElementById('d-ex-p').textContent=extraOrders.length+' คน';
+  var unmatchedEl=document.getElementById('d-unmatched');
+  if(unmatchedEl){
+    if(unmatched.length){
+      var udepts={};unmatched.forEach(function(o){udepts[o.dept]=(udepts[o.dept]||0)+1;});
+      unmatchedEl.style.display='block';
+      unmatchedEl.innerHTML='⚠️ พบ '+unmatched.length+' รายการที่ชื่อหน่วยบริการไม่ตรงกับรายชื่อ รพ.สต. ปัจจุบัน (นับรวมในยอดด้านบนแล้ว แต่ไม่แสดงในกล่อง รพ.สต. ด้านล่าง): '+Object.keys(udepts).map(function(d){return d+' ('+udepts[d]+')';}).join(', ')+' — แนะนำใช้ปุ่ม "ย้าย" ในหน้ารายชื่อ รพ.สต. เพื่อจัดให้ตรงกับชื่อปัจจุบัน';
+    }else{
+      unmatchedEl.style.display='none';unmatchedEl.innerHTML='';
+    }
+  }
   var ds={};scopeOrders.forEach(function(o){if(!ds[o.dept])ds[o.dept]=0;ds[o.dept]+=o.qty;});
   var done=scopeHosp.filter(function(h){return ds[h];}).length;
   document.getElementById('d-h').textContent=done+'/'+scopeHosp.length;document.getElementById('d-hdone').textContent=done+' แห่ง สั่งแล้ว';document.getElementById('d-hnone').textContent=(scopeHosp.length-done)+' แห่ง ยังไม่สั่ง';
