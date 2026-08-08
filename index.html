@@ -1009,7 +1009,7 @@ function onMoveAmphoeChange(){
   if(!a){fillHospSelect(dSel,[],'','-- เลือกอำเภอก่อน --');return;}
   fillHospSelect(dSel,AMPHOE_DATA[a].map(function(p){return p[0];}),'','-- เลือกหน่วยบริการ --');
 }
-function closeMoveModal(){document.getElementById('move-modal').classList.remove('on');moveId=null;}
+function closeMoveModal(){document.getElementById('move-modal').classList.remove('on');moveId=null;moveFromList=false;}
 function confirmMove(){
   var newDept=document.getElementById('move-dept').value;
   if(!newDept){showToast('กรุณาเลือกหน่วยบริการปลายทาง',true);return;}
@@ -1017,10 +1017,11 @@ function confirmMove(){
   if(!o){closeMoveModal();return;}
   if(newDept===o.dept){showToast('เลือกหน่วยบริการเดิม ไม่มีการเปลี่ยนแปลง',true);return;}
   var oldDept=o.dept;
+  var wasFromList=moveFromList;
   o.dept=newDept;
   closeMoveModal();
   upd();renderDash();if(curH===oldDept)openHM(oldDept);
-  if(document.getElementById('pn-list').classList.contains('on'))renderList();
+  if(wasFromList){goTab('list');}
   showSavePopup('ย้าย "'+o.name+'" ไป '+newDept+' สำเร็จ');
   svFirebase();
 }
@@ -1062,9 +1063,11 @@ function renderList(){
   var f=orders.filter(function(o){var oa=(HOSP_INFO[o.dept]&&HOSP_INFO[o.dept].amphoe)||'';return(!av||oa===av)&&(!dv||o.dept===dv)&&(!gv||o.g===gv)&&(!tv||o.type===tv)&&(!showUnmatchedOnly||!HOSP_INFO[o.dept]);});
   var el=document.getElementById('ol');
   if(!f.length){el.innerHTML='<p class="emp">ไม่พบรายการ</p>';return;}
-  el.innerHTML=f.map(function(o){var unmatched=!HOSP_INFO[o.dept];return '<div class="oi"><div class="av '+(o.g==='M'?'avm':'avf')+'">'+o.name.charAt(0)+'</div><div class="oin"><div class="oname">'+o.name+'</div><div class="ometa">'+o.dept+(unmatched?' <span style="color:#dc2626;font-weight:700">⚠️ ไม่พบในรายชื่อ รพ.สต.ปัจจุบัน</span>':'')+' | 📞 '+(o.phone||'-')+' | '+(o.type==='meet'?'ลงทะเบียนประชุม':'🛒 สั่งซื้อเพิ่ม')+'</div></div><div style="text-align:right;flex-shrink:0;margin-right:8px"><span class="osiz">'+(o.g==='M'?'ชาย':'หญิง')+' '+o.ch+'"</span>'+(o.type==='extra'?'<div style="font-size:11px;color:#B45309;font-weight:700">'+fmt(o.qty*PRICE)+' บาท</div>':'')+'<div style="font-size:11px;color:#6b7280">'+o.qty+' ตัว</div></div><div style="display:flex;gap:4px;flex-shrink:0"><button class="btn-sm" style="padding:4px 8px" onclick="openEML('+o.id+')">✏ แก้ไข</button><button class="bmv" onclick="openMoveModal('+o.id+')">🔀 ย้าย</button></div></div>';}).join('');
+  el.innerHTML=f.map(function(o){var unmatched=!HOSP_INFO[o.dept];return '<div class="oi"><div class="av '+(o.g==='M'?'avm':'avf')+'">'+o.name.charAt(0)+'</div><div class="oin"><div class="oname">'+o.name+'</div><div class="ometa">'+o.dept+(unmatched?' <span style="color:#dc2626;font-weight:700">⚠️ ไม่พบในรายชื่อ รพ.สต.ปัจจุบัน</span>':'')+' | 📞 '+(o.phone||'-')+' | '+(o.type==='meet'?'ลงทะเบียนประชุม':'🛒 สั่งซื้อเพิ่ม')+'</div></div><div style="text-align:right;flex-shrink:0;margin-right:8px"><span class="osiz">'+(o.g==='M'?'ชาย':'หญิง')+' '+o.ch+'"</span>'+(o.type==='extra'?'<div style="font-size:11px;color:#B45309;font-weight:700">'+fmt(o.qty*PRICE)+' บาท</div>':'')+'<div style="font-size:11px;color:#6b7280">'+o.qty+' ตัว</div></div><div style="display:flex;gap:4px;flex-shrink:0"><button class="btn-sm" style="padding:4px 8px" onclick="openEML('+o.id+')">✏ แก้ไข</button><button class="bmv" onclick="openMoveModalL('+o.id+')">🔀 ย้าย</button></div></div>';}).join('');
 }
 function openEML(id){goTab('dash');setTimeout(function(){openEM(id);},100);}
+var moveFromList=false;
+function openMoveModalL(id){moveFromList=true;goTab('dash');setTimeout(function(){openMoveModal(id);},100);}
 
 function groupByHosp(data){
   // Returns array in fixed HOSP order (only hospitals that have data), each with rows + subtotal
