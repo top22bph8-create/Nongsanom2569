@@ -578,6 +578,7 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
 <script>
 var PRICE=450;
 var RPT_TITLE='แบบรายงานสั่งซื้อเสื้อสมาคมหมออนามัยสกลนคร ประจำปี 2569';
+var RPT4_TITLE='ใบจัดส่งเสื้อและส่งมอบเสื้อ สมาคมหมออนามัยสกลนคร ประจำปี 2569';
 var RPT_SUBTITLE='สมาคมหมออนามัยจังหวัดสกลนคร (18 อำเภอ)';
 var AMPHOE_DATA={
 'เมืองสกลนคร':[['รพ.สต.บ้านดงมะไฟสามัคคี','042746403'],['รพ.สต.บ้านฮางโฮง','042162014'],['รพ.สต.ธาตุเชิงชุม','042712473'],['รพ.สต.บ้านหนองปลาน้อย','042160248'],['รพ.สต.พังขว้างใต้','042161028'],['รพ.สต.บ้านโนนหอม','042170660'],['รพ.สต.บ้านนาคำ ตำบลห้วยยาง','042747118'],['รพ.สต.บ้านทับสอ','042160057'],['รพ.สต.บ้านดงขุมข้าว','042747025'],['รพ.สต.บ้านนาขาม ตำบลห้วยยาง','042163043'],['รพ.สต.บ้านโคกก่องใหญ่','042160460'],['รพ.สต.บ้านลาดกะเฌอ','042160033'],['รพ.สต.บ้านแมด','042160260'],['รพ.สต.บ้านม่วงลาย','042160400'],['รพ.สต.ดงพัฒนา','042743420'],['รพ.สต.คูสนาม','042704757'],['รพ.สต.บ้านเชียงเครือวัดใหญ่','042754078'],['รพ.สต.หนองลาดใต้','042162221'],['รพ.สต.ดอนแคนใต้','042160104'],['รพ.สต.บ้านดงมะไฟ','042704674'],['รพ.สต.บ้านโคกเลาะ','0895695602'],['รพ.สต.บ้านหนองสนม','042704651'],['รพ.สต.บ้านหนองไผ่','042761442'],['รพ.สต.บ้านสร้างแก้วสมานมิตร','042751214']],
@@ -765,6 +766,157 @@ function removePayment(id){
   svPayments();renderPayment();
   showToast('ลบสลิปแล้ว',false);
 }
+
+// ===== ใบเสร็จรับเงิน (ออกได้ทั้งรายบุคคลและรวมทั้ง รพ.สต.) =====
+// แปลงตัวเลขเป็นข้อความจำนวนเงินภาษาไทย เช่น 1350 -> หนึ่งพันสามร้อยห้าสิบบาทถ้วน
+function thaiBahtText(amount){
+  var numArr=['ศูนย์','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า'];
+  var digitArr=['','สิบ','ร้อย','พัน','หมื่น','แสน'];
+  amount=Math.round((amount||0)*100)/100;
+  var neg=amount<0;amount=Math.abs(amount);
+  var baht=Math.floor(amount);
+  var satang=Math.round((amount-baht)*100);
+  function readSixDigits(chunkStr){
+    chunkStr=String(chunkStr).replace(/^0+(?=\d)/,'');
+    if(chunkStr===''||chunkStr==='0')return '';
+    var len=chunkStr.length,out='';
+    for(var i=0;i<len;i++){
+      var d=parseInt(chunkStr[i],10),pos=len-i-1;
+      if(d===0)continue;
+      if(pos===0){out+=(d===1&&len>1)?'เอ็ด':numArr[d];}
+      else if(pos===1){out+=(d===1)?'สิบ':(d===2?'ยี่สิบ':numArr[d]+'สิบ');}
+      else{out+=numArr[d]+digitArr[pos];}
+    }
+    return out;
+  }
+  function readNumber(n){
+    if(n===0)return '';
+    var s=String(n),chunks=[];
+    while(s.length>6){chunks.unshift(s.slice(-6));s=s.slice(0,-6);}
+    chunks.unshift(s);
+    return chunks.map(function(c){return readSixDigits(c);}).join('ล้าน');
+  }
+  var bahtText=baht===0?'ศูนย์':readNumber(baht);
+  var satangText=satang===0?'':readSixDigits(satang);
+  return (neg?'ลบ':'')+bahtText+'บาท'+(satang===0?'ถ้วน':satangText+'สตางค์');
+}
+function buildReceiptHTML(opts){
+  var logoImgEl=document.querySelector('.nav-logo img');
+  var logoSrc=logoImgEl?logoImgEl.src:'';
+  var rowsHtml=opts.items.map(function(it,idx){
+    return '<tr>'+
+      '<td style="padding:6px 8px;border:1px solid #ccc;text-align:center">'+(idx+1)+'</td>'+
+      '<td style="padding:6px 8px;border:1px solid #ccc">'+escapeHtml(it.name)+'</td>'+
+      '<td style="padding:6px 8px;border:1px solid #ccc;text-align:center">'+it.qty+'</td>'+
+      '<td style="padding:6px 8px;border:1px solid #ccc;text-align:right">'+fmt(it.amount)+'</td>'+
+    '</tr>';
+  }).join('');
+  return '<div style="width:794px;padding:44px 48px;font-family:SarabunPDF,sans-serif;background:#fff;color:#111;box-sizing:border-box">'+
+    '<div style="display:flex;align-items:center;gap:16px;border-bottom:3px solid #0A5C48;padding-bottom:14px;margin-bottom:18px">'+
+      (logoSrc?'<img src="'+logoSrc+'" style="width:64px;height:64px;object-fit:contain;flex-shrink:0">':'')+
+      '<div>'+
+        '<div style="font-weight:700;font-size:19px;color:#0A5C48">สมาคมหมออนามัยจังหวัดสกลนคร</div>'+
+        '<div style="font-size:12px;color:#555;margin-top:2px">เลขที่ 20 ถนนใสสว่าง ตำบลธาตุเชิงชุม อำเภอเมืองสกลนคร จังหวัดสกลนคร 47000</div>'+
+        '<div style="font-size:13px;color:#555">ใบเสร็จรับเงินค่าสั่งซื้อเสื้อสมาคมหมออนามัยสกลนคร ประจำปี 2569</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="text-align:center;font-weight:700;font-size:22px;margin-bottom:20px;letter-spacing:2px">ใบเสร็จรับเงิน</div>'+
+    '<div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:16px">'+
+      '<div>เลขที่ '+escapeHtml(opts.receiptNo)+'</div>'+
+      '<div>วันที่ '+escapeHtml(opts.dateStr)+'</div>'+
+    '</div>'+
+    '<div style="font-size:14px;margin-bottom:6px">ได้รับเงินจาก: <b>'+escapeHtml(opts.payerLabel)+'</b></div>'+
+    '<div style="font-size:14px;margin-bottom:16px">หน่วยบริการ: <b>'+escapeHtml(opts.dept)+'</b> (อ.'+escapeHtml(opts.amphoe)+')</div>'+
+    '<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:6px">'+
+      '<thead><tr style="background:#0A5C48;color:#fff">'+
+        '<th style="padding:7px 8px;border:1px solid #0A5C48;width:36px">#</th>'+
+        '<th style="padding:7px 8px;border:1px solid #0A5C48;text-align:left">รายการ</th>'+
+        '<th style="padding:7px 8px;border:1px solid #0A5C48;width:80px">จำนวน (ตัว)</th>'+
+        '<th style="padding:7px 8px;border:1px solid #0A5C48;width:120px">จำนวนเงิน (บาท)</th>'+
+      '</tr></thead>'+
+      '<tbody>'+rowsHtml+'</tbody>'+
+      '<tfoot><tr style="background:#f0f0f0;font-weight:700">'+
+        '<td colspan="3" style="padding:7px 8px;border:1px solid #ccc;text-align:right">รวมเงินทั้งสิ้น</td>'+
+        '<td style="padding:7px 8px;border:1px solid #ccc;text-align:right;color:#0A5C48">'+fmt(opts.total)+'</td>'+
+      '</tr></tfoot>'+
+    '</table>'+
+    '<div style="font-size:13px;font-style:italic;color:#444;margin-bottom:38px">('+thaiBahtText(opts.total)+')</div>'+
+    '<div style="display:flex;justify-content:flex-end">'+
+      '<div style="text-align:center;width:280px">'+
+        '<div style="border-top:1px solid #333;margin-bottom:6px"></div>'+
+        '<div style="font-size:13px">ลงชื่อ ................................................ ผู้รับเงิน</div>'+
+        '<div style="font-size:13px;font-weight:700;margin-top:6px">( นางจินตนา คำสวาสดิ์ )</div>'+
+        '<div style="font-size:12px;color:#555">เลขานุการสมาคมหมออนามัยสกลนคร</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+async function exportReceiptPDF(opts){
+  showToast('กำลังสร้างใบเสร็จ กรุณารอสักครู่...',false);
+  try{
+    await ensurePdfCanvasFont();
+    var doc=new jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    var container=document.createElement('div');
+    container.style.position='fixed';container.style.left='-99999px';container.style.top='0';
+    container.innerHTML=buildReceiptHTML(opts);
+    document.body.appendChild(container);
+    var canvas=await html2canvas(container.firstChild,{scale:2,backgroundColor:'#ffffff',useCORS:true});
+    document.body.removeChild(container);
+    var PAGE_W_MM=210,PAGE_H_MM=297;
+    var mmPerPx=PAGE_W_MM/canvas.width;
+    var pageHeightPx=Math.floor(PAGE_H_MM/mmPerPx);
+    var totalPages=Math.max(1,Math.ceil(canvas.height/pageHeightPx));
+    for(var p=0;p<totalPages;p++){
+      if(p>0)doc.addPage();
+      var sliceH=Math.min(pageHeightPx,canvas.height-p*pageHeightPx);
+      var sliceCanvas=document.createElement('canvas');
+      sliceCanvas.width=canvas.width;sliceCanvas.height=sliceH;
+      var ctx=sliceCanvas.getContext('2d');
+      ctx.fillStyle='#ffffff';ctx.fillRect(0,0,sliceCanvas.width,sliceCanvas.height);
+      ctx.drawImage(canvas,0,p*pageHeightPx,canvas.width,sliceH,0,0,canvas.width,sliceH);
+      doc.addImage(sliceCanvas.toDataURL('image/jpeg',0.92),'JPEG',0,0,PAGE_W_MM,sliceH*mmPerPx);
+    }
+    doc.save(opts.filename);
+    showToast('ออกใบเสร็จสำเร็จ',false);
+  }catch(e){
+    console.error(e);
+    showToast('ออกใบเสร็จไม่สำเร็จ กรุณาลองใหม่',true);
+  }
+}
+function issueReceiptPerson(dept,orderId){
+  var o=orders.find(function(x){return x.id===orderId;});
+  if(!o)return;
+  var amt=o.qty*PRICE;
+  if(!confirm('ออกใบเสร็จสำหรับ '+o.name+'\nจำนวน '+o.qty+' ตัว × '+PRICE+' บาท รวม '+fmt(amt)+' บาท ใช่หรือไม่?'))return;
+  exportReceiptPDF({
+    receiptNo:'RC'+Date.now(),
+    dateStr:new Date().toLocaleDateString('th-TH'),
+    payerLabel:o.name,
+    dept:dept,
+    amphoe:amphoeOf(dept),
+    items:[{name:o.name+' (เสื้อสมาคมฯ '+o.qty+' ตัว)',qty:o.qty,amount:amt}],
+    total:amt,
+    filename:'ใบเสร็จ_'+o.name+'_'+new Date().toISOString().slice(0,10)+'.pdf'
+  });
+}
+function issueReceiptHosp(dept){
+  var people=orders.filter(function(o){return o.dept===dept && o.type==='extra';});
+  if(!people.length){showToast('ไม่มีรายการสั่งซื้อเพิ่มของหน่วยนี้',true);return;}
+  var items=people.map(function(o){return {name:o.name,qty:o.qty,amount:o.qty*PRICE};});
+  var total=items.reduce(function(s,it){return s+it.amount;},0);
+  if(!confirm('ออกใบเสร็จรวมสำหรับ '+dept+'\nจำนวน '+people.length+' คน รวม '+fmt(total)+' บาท ใช่หรือไม่?'))return;
+  exportReceiptPDF({
+    receiptNo:'RC'+Date.now(),
+    dateStr:new Date().toLocaleDateString('th-TH'),
+    payerLabel:dept,
+    dept:dept,
+    amphoe:amphoeOf(dept),
+    items:items,
+    total:total,
+    filename:'ใบเสร็จรวม_'+dept+'_'+new Date().toISOString().slice(0,10)+'.pdf'
+  });
+}
+
 function renderPayment(){
   var av=document.getElementById('pay-amphoe').value,hv=document.getElementById('pay-hosp').value;
   var extraByDept={};
@@ -811,7 +963,7 @@ function renderPayment(){
     var statusTxt=sum.status==='paid'?'✅ ชำระครบแล้ว':(sum.status==='partial'?'🟡 ชำระบางส่วนแล้ว '+fmt(sum.paid)+' บาท ค้างอีก '+fmt(sum.remaining)+' บาท':'⏳ ยังไม่ได้ชำระ ('+fmt(sum.owed)+' บาท)');
     var deptEsc=dept.replace(/'/g,"\\'");
     var peopleRows=extraByDept[dept].map(function(o){
-      return '<tr><td style="font-weight:600">'+o.name+'</td><td>'+o.qty+' ตัว</td><td class="num" style="text-align:center">'+fmt(o.qty*PRICE)+' บาท</td><td style="text-align:right"><button class="btn-sm" style="padding:5px 12px" onclick="attachSlip(\''+deptEsc+'\','+o.id+','+(o.qty*PRICE)+')">📎 แนบสลิป</button></td></tr>';
+      return '<tr><td style="font-weight:600">'+o.name+'</td><td>'+o.qty+' ตัว</td><td class="num" style="text-align:center">'+fmt(o.qty*PRICE)+' บาท</td><td style="text-align:right;white-space:nowrap"><button class="btn-sm" style="padding:5px 10px" onclick="attachSlip(\''+deptEsc+'\','+o.id+','+(o.qty*PRICE)+')">📎 แนบสลิป</button> <button class="btn-sm" style="padding:5px 10px;background:#EFF6FF;border-color:#93C5FD;color:#1D4ED8" onclick="issueReceiptPerson(\''+deptEsc+'\','+o.id+')">🧾 ใบเสร็จ</button></td></tr>';
     }).join('');
     var slipsForDept=payments.filter(function(p){return p.dept===dept;});
     var slipsHtml=slipsForDept.length?('<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">'+slipsForDept.map(function(p){
@@ -830,7 +982,8 @@ function renderPayment(){
         '</table></div>'+
         '<div style="margin-top:12px;padding-top:12px;border-top:1px dashed #e5e7eb;text-align:center">'+
           '<div style="font-size:12px;color:#6b7280;margin-bottom:8px">หากโอนเงินรวมทีเดียวสำหรับทุกคนใน รพ.สต. นี้ ให้แนบสลิปที่นี่:</div>'+
-          '<button class="btn-sm" style="background:#0A5C48;color:#fff;border-color:#0A5C48" onclick="attachSlip(\''+deptEsc+'\',null,'+sum.remaining+')">📎 แนบสลิปรวมทั้ง รพ.สต. (คงเหลือ '+fmt(sum.remaining)+' บาท)</button>'+
+          '<button class="btn-sm" style="background:#0A5C48;color:#fff;border-color:#0A5C48" onclick="attachSlip(\''+deptEsc+'\',null,'+sum.remaining+')">📎 แนบสลิปรวมทั้ง รพ.สต. (คงเหลือ '+fmt(sum.remaining)+' บาท)</button> '+
+          '<button class="btn-sm" style="background:#EFF6FF;border-color:#93C5FD;color:#1D4ED8" onclick="issueReceiptHosp(\''+deptEsc+'\')">🧾 ออกใบเสร็จรวมทั้ง รพ.สต.</button>'+
         '</div>'+
         slipsHtml+
       '</div></div>'+
@@ -1331,7 +1484,7 @@ function expPackingExcel(){
   if(!groups.length){showToast('ไม่มีข้อมูลสำหรับส่งออก',true);return;}
   var HEADERS=['ลำดับที่','ชื่อ-สกุล','เพศ','รอบอก(นิ้ว)','ความยาว(นิ้ว)','จำนวน(ตัว)','ประเภท','ตรวจสอบ'];
   var ncols=HEADERS.length;
-  var rows=[[RPT_TITLE],[RPT_SUBTITLE],['ใบจัดส่งเสื้อแยกราย รพ.สต. (สำหรับผู้จัดเสื้อ)'],['วันที่ออกรายงาน: '+new Date().toLocaleDateString('th-TH')],[]];
+  var rows=[[RPT4_TITLE],[RPT_SUBTITLE],['ใบจัดส่งเสื้อแยกราย รพ.สต. (สำหรับผู้จัดเสื้อ)'],['วันที่ออกรายงาน: '+new Date().toLocaleDateString('th-TH')],[]];
   var grandQty=0,grandPeople=0;
   groups.forEach(function(g){
     var hasExtra=g.rows.some(function(o){return o.type==='extra';});
@@ -1431,8 +1584,21 @@ function buildPackingHospHTML(g,sum,hasExtra,slipImgs){
       '</div></div>';
   }
 
+  var signHtml='<div style="margin-top:36px;display:flex;justify-content:space-between;gap:30px">'+
+      '<div style="flex:1;text-align:center">'+
+        '<div style="border-top:1px solid #333;margin:40px 14px 6px 14px"></div>'+
+        '<div style="font-size:13px">ลงชื่อ...................................... ผู้รับเสื้อ</div>'+
+        '<div style="font-size:13px;margin-top:6px">วันที่ .................................</div>'+
+      '</div>'+
+      '<div style="flex:1;text-align:center">'+
+        '<div style="border-top:1px solid #333;margin:40px 14px 6px 14px"></div>'+
+        '<div style="font-size:13px">ลงชื่อ...................................... ผู้ส่งมอบเสื้อ</div>'+
+        '<div style="font-size:13px;margin-top:6px">วันที่ส่งมอบ .................................</div>'+
+      '</div>'+
+    '</div>';
+
   return '<div style="width:794px;padding:40px 36px;font-family:SarabunPDF,sans-serif;background:#fff;color:#111;box-sizing:border-box">'+
-    '<div style="text-align:center;font-weight:700;font-size:20px;margin-bottom:4px">'+escapeHtml(RPT_TITLE)+'</div>'+
+    '<div style="text-align:center;font-weight:700;font-size:20px;margin-bottom:4px">'+escapeHtml(RPT4_TITLE)+'</div>'+
     '<div style="text-align:center;font-size:14px;color:#555;margin-bottom:18px">'+escapeHtml(RPT_SUBTITLE)+'</div>'+
     '<div style="font-weight:700;font-size:18px">'+escapeHtml(g.hosp)+' (อ.'+escapeHtml(amphoeOf(g.hosp))+')</div>'+
     '<div style="font-size:13px;color:#666;margin-top:2px">โทร '+escapeHtml((HOSP_INFO[g.hosp]&&HOSP_INFO[g.hosp].phone)||'-')+'</div>'+
@@ -1456,6 +1622,7 @@ function buildPackingHospHTML(g,sum,hasExtra,slipImgs){
       '</tr></tfoot>'+
     '</table>'+
     slipHtml+
+    signHtml+
   '</div>';
 }
 
