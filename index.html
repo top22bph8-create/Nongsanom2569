@@ -1002,6 +1002,7 @@ function openMoveModal(id){
   aSel.value='';
   fillHospSelect(dSel,[],'','-- เลือกอำเภอก่อน --');
   document.getElementById('move-modal').classList.add('on');
+  document.getElementById('move-modal').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function onMoveAmphoeChange(){
   var a=document.getElementById('move-amphoe').value;
@@ -1067,7 +1068,7 @@ function renderList(){
 }
 function openEML(id){goTab('dash');setTimeout(function(){openEM(id);},100);}
 var moveFromList=false;
-function openMoveModalL(id){moveFromList=true;goTab('dash');setTimeout(function(){openMoveModal(id);},100);}
+function openMoveModalL(id){goTab('dash');moveFromList=true;setTimeout(function(){openMoveModal(id);},100);}
 
 function groupByHosp(data){
   // Returns array in fixed HOSP order (only hospitals that have data), each with rows + subtotal
