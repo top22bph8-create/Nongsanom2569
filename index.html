@@ -214,6 +214,7 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
   <button class="tab" onclick="goTab('entry')">✏️ บันทึกข้อมูล</button>
   <button class="tab" onclick="goTab('list')">📋 รายการ <span class="cnt" id="cntb">0</span></button>
   <button class="tab" onclick="goTab('payment')">💳 แจ้งชำระเงิน</button>
+  <button class="tab" onclick="goTab('newitems')">🆕 รายการใหม่</button>
   <button class="tab" onclick="goTab('report')">📈 รายงาน</button>
   <button class="tab" onclick="goTab('shirt')">👕 แบบเสื้อ</button>
   <button class="tab" onclick="goTab('size')">📏 ตารางไซส์</button>
@@ -436,6 +437,22 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
   </div>
 </div>
 
+<!-- ===== NEW ITEMS SINCE LAST EXPORT ===== -->
+<div class="pn" id="pn-newitems">
+  <div class="card">
+    <div class="sec">🆕 รายการที่บันทึกเพิ่มเติมหลังส่งออกรายงาน</div>
+    <div style="font-size:12px;color:#6b7280;margin-bottom:1rem">ดูว่ามีใครบันทึกข้อมูลเพิ่มเข้ามาใหม่ นับตั้งแต่เวลาที่คุณกดส่งออกรายงานแต่ละประเภทครั้งล่าสุด — เลือกดูได้ทีละรายงาน</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem">
+      <button class="achip on" id="ni-tab-meet" onclick="setNewItemsTab('meet')">🗓 รายงานที่ 1</button>
+      <button class="achip" id="ni-tab-extra" onclick="setNewItemsTab('extra')">🛒 รายงานที่ 2</button>
+      <button class="achip" id="ni-tab-size" onclick="setNewItemsTab('size')">📏 รายงานที่ 3</button>
+      <button class="achip" id="ni-tab-pack" onclick="setNewItemsTab('pack')">📦 รายงานที่ 4</button>
+    </div>
+    <div id="ni-lastexport" style="font-size:12px;color:#6b7280;background:#f9fafb;border-radius:8px;padding:10px 12px;margin-bottom:1rem"></div>
+    <div id="ni-list"></div>
+  </div>
+</div>
+
 <!-- ===== REPORT ===== -->
 <div class="pn" id="pn-report">
   <!-- รายงาน 1: ลงทะเบียนประชุม -->
@@ -566,6 +583,8 @@ var otyp='meet',editId=null,curH=null,pendingList=[];
 // Firebase (defensive - won't break the app if it fails)
 var fbEnabled=false, db=null, ref=null, backupRef=null, payRef=null;
 var payments=[];
+var lastExportTs={meet:0,extra:0,size:0,pack:0};
+var curNewItemsTab='meet';
 var firebaseConfig={apiKey:"AIzaSyBui7cyacK_ppOlDvpzndrPgKFzO0AY0R4",authDomain:"samakom2569-8743d.firebaseapp.com",databaseURL:"https://samakom2569-8743d-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"samakom2569-8743d",storageBucket:"samakom2569-8743d.firebasestorage.app",messagingSenderId:"890794447036",appId:"1:890794447036:web:e069d87179963321c140b9",measurementId:"G-J1PCB2T4K9"};
 
 function showFB(s){
@@ -663,6 +682,30 @@ function loadPaymentsFromFirebase(){
       if(document.getElementById('pn-payment').classList.contains('on'))renderPayment();
     },function(err){console.error('Payments read error:',err);});
   }catch(e){console.error(e);}
+}
+
+// ===== เวลาที่ส่งออกรายงานแต่ละประเภทครั้งล่าสุด (ใช้เช็คว่ามีรายการใหม่เพิ่มมาหรือไม่) =====
+function saveLastExportTs(){
+  try{localStorage.setItem('shirtLastExport',JSON.stringify(lastExportTs));}catch(e){}
+  if(fbEnabled && db){
+    try{db.ref('shirt_last_export').set(lastExportTs).catch(function(e){console.error('LastExport save error:',e);});}catch(e){console.error(e);}
+  }
+}
+function loadLastExportFromFirebase(){
+  try{var loc=JSON.parse(localStorage.getItem('shirtLastExport')||'{}');['meet','extra','size','pack'].forEach(function(k){lastExportTs[k]=loc[k]||0;});}catch(e){}
+  if(!fbEnabled || !db)return;
+  try{
+    db.ref('shirt_last_export').on('value',function(snap){
+      var v=snap.val();
+      if(v){['meet','extra','size','pack'].forEach(function(k){lastExportTs[k]=v[k]||0;});}
+      if(document.getElementById('pn-newitems').classList.contains('on'))renderNewItems();
+    },function(err){console.error('LastExport read error:',err);});
+  }catch(e){console.error(e);}
+}
+function markExported(type){
+  lastExportTs[type]=Date.now();
+  saveLastExportTs();
+  if(document.getElementById('pn-newitems').classList.contains('on'))renderNewItems();
 }
 function getPaymentSummary(dept){
   var owed=orders.filter(function(o){return o.dept===dept && o.type==='extra';}).reduce(function(s,o){return s+o.qty*PRICE;},0);
@@ -821,6 +864,9 @@ function loadFromFirebase(){
 
 // Init filter dropdowns (amphoe-based)
 function fillAmphoeSelect(sel,includeAllLabel){
+  // ล้างตัวเลือกเดิมทั้งหมด ยกเว้นตัวแรก (placeholder) ก่อนเติมใหม่ทุกครั้ง
+  // ป้องกันชื่ออำเภอซ้ำเวลาฟังก์ชันนี้ถูกเรียกซ้ำ (เช่น ทุกครั้งที่เปิดหน้าต่าง "ย้าย")
+  while(sel.options.length>1)sel.remove(1);
   AMPHOE_LIST.forEach(function(a){
     var o=document.createElement('option');o.value=a;o.textContent=a;sel.appendChild(o);
   });
@@ -937,11 +983,12 @@ function goTab(id){
   document.querySelectorAll('.pn').forEach(function(p){p.classList.remove('on');});
   document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
   document.getElementById('pn-'+id).classList.add('on');
-  ['dash','entry','list','payment','report','shirt','size'].forEach(function(t,i){if(t===id)document.querySelectorAll('.tab')[i].classList.add('on');});
+  ['dash','entry','list','payment','newitems','report','shirt','size'].forEach(function(t,i){if(t===id)document.querySelectorAll('.tab')[i].classList.add('on');});
   closeHM();closeEM();closeDelConfirm();closeMoveModal();
   if(id==='dash')renderDash();
   if(id==='list')renderList();
   if(id==='payment')renderPayment();
+  if(id==='newitems')renderNewItems();
   if(id==='report')renderReport();
 }
 
@@ -1158,6 +1205,7 @@ function expSizeSummary(){
   XLSX.utils.book_append_sheet(wb,ws,'สรุปยอดตามไซส์');
   XLSX.writeFile(wb,'สรุปยอดตามไซส์_ส่งร้านผลิต_'+new Date().toISOString().slice(0,10)+'.xlsx');
   showToast('ส่งออก Excel สำเร็จ',false);
+  markExported('size');
 }
 
 // ===== รายงานที่ 4: ใบจัดส่งเสื้อแยกราย รพ.สต. (รวมทุกประเภท) =====
@@ -1168,6 +1216,54 @@ function getPackingData(){
   var data=orders.filter(function(o){return !scopeSet||scopeSet[o.dept];});
   return groupByHosp(data);
 }
+// ===== รายการที่บันทึกเพิ่มเติมหลังส่งออกรายงานแต่ละประเภท =====
+function setNewItemsTab(type){
+  curNewItemsTab=type;
+  ['meet','extra','size','pack'].forEach(function(t){
+    var btn=document.getElementById('ni-tab-'+t);
+    if(btn)btn.classList.toggle('on',t===type);
+  });
+  renderNewItems();
+}
+function renderNewItems(){
+  var type=curNewItemsTab;
+  var ts=lastExportTs[type]||0;
+  var labelMap={meet:'รายงานที่ 1 (ลงทะเบียนประชุม)',extra:'รายงานที่ 2 (สั่งซื้อเพิ่ม)',size:'รายงานที่ 3 (สรุปยอดตามไซส์)',pack:'รายงานที่ 4 (ใบจัดส่งเสื้อ)'};
+  var lastExportEl=document.getElementById('ni-lastexport');
+  lastExportEl.innerHTML=ts?('📤 ส่งออก'+labelMap[type]+'ล่าสุดเมื่อ: <b>'+new Date(ts).toLocaleString('th-TH')+'</b> — รายการที่บันทึกหลังจากนี้จะแสดงด้านล่าง'):('ยังไม่เคยส่งออก'+labelMap[type]+' — แสดงข้อมูลทั้งหมดที่มีอยู่ตอนนี้');
+
+  var data;
+  if(type==='meet')data=orders.filter(function(o){return o.type==='meet' && o.id>ts;});
+  else if(type==='extra')data=orders.filter(function(o){return o.type==='extra' && o.id>ts;});
+  else data=orders.filter(function(o){return o.id>ts;}); // รายงานที่ 3 และ 4 นับรวมทุกประเภท
+
+  var el=document.getElementById('ni-list');
+  if(!data.length){el.innerHTML='<p class="emp">🎉 ไม่มีรายการใหม่หลังส่งออกล่าสุด</p>';return;}
+
+  var groups=groupByHosp(data);
+  var html='<div class="racc-toolbar"><button class="btn-sm" onclick="toggleAllRpt(\'ni-list\',true)">⬇ ขยายทั้งหมด</button><button class="btn-sm" onclick="toggleAllRpt(\'ni-list\',false)">⬆ ย่อทั้งหมด</button></div>';
+  var grandQty=0,grandPeople=0;
+  groups.forEach(function(g,gi){
+    grandQty+=g.qty;grandPeople+=g.rows.length;
+    var barId='ni-g'+gi;
+    var bodyRows=g.rows.map(function(o,ri){
+      return '<tr><td style="color:#9ca3af">'+(ri+1)+'</td><td style="font-weight:600">'+o.name+'</td><td><span class="chip '+(o.g==='M'?'cm':'cf')+'">'+(o.g==='M'?'ชาย':'หญิง')+'</span></td><td>'+o.ch+'" / '+o.ln+'"</td><td class="num" style="font-weight:700">'+o.qty+'</td><td style="font-size:11px;color:#6b7280">'+(o.type==='meet'?'ประชุม':'สั่งเพิ่ม')+'</td><td style="font-size:11px;color:#6b7280">'+new Date(o.id).toLocaleString('th-TH')+'</td></tr>';
+    }).join('');
+    html+='<div class="racc" id="'+barId+'">'+
+      '<button class="racc-bar" onclick="toggleRptGroup(\''+barId+'\')">'+
+        '<span class="racc-ic">🆕</span><span class="racc-name">'+g.hosp+' <span style="opacity:.8;font-weight:500;font-size:12px">(อ.'+amphoeOf(g.hosp)+')</span></span>'+
+        '<span class="racc-meta">'+g.rows.length+' คน · '+g.qty+' ตัว</span><span class="racc-arrow">▾</span>'+
+      '</button>'+
+      '<div class="racc-body"><div class="racc-body-in"><div class="tw"><table class="rt">'+
+        '<tr><th>#</th><th>ชื่อ-สกุล</th><th>เพศ</th><th>ไซส์</th><th class="num">จำนวน</th><th>ประเภท</th><th>เวลาบันทึก</th></tr>'+
+        bodyRows+
+      '</table></div></div></div>'+
+    '</div>';
+  });
+  html+='<div class="racc-total"><span class="racc-ic">🆕</span><span style="flex:1">รวมรายการใหม่ — '+groups.length+' รพ.สต.</span><span class="racc-meta">'+grandPeople+' คน · '+grandQty+' ตัว</span></div>';
+  el.innerHTML=html;
+}
+
 function renderPackingReport(){
   var groups=getPackingData();
   var el=document.getElementById('rpt-pack-hosp');
@@ -1229,6 +1325,7 @@ function expPackingExcel(){
   XLSX.utils.book_append_sheet(wb,ws,'ใบจัดส่งเสื้อ');
   XLSX.writeFile(wb,'ใบจัดส่งเสื้อแยกราย_รพสต_'+new Date().toISOString().slice(0,10)+'.xlsx');
   showToast('ส่งออก Excel สำเร็จ: '+groups.length+' รพ.สต.',false);
+  markExported('pack');
 }
 
 // ===== PDF (เฉพาะรายงานที่ 4) — ใช้ฟอนต์ Sarabun เพื่อรองรับภาษาไทย =====
@@ -1329,6 +1426,7 @@ async function expPackingPDF(){
     }
     doc.save('ใบจัดส่งเสื้อแยกราย_รพสต_'+new Date().toISOString().slice(0,10)+'.pdf');
     showToast('ส่งออก PDF สำเร็จ: '+groups.length+' รพ.สต.',false);
+    markExported('pack');
   }catch(e){
     console.error(e);
     showToast('ส่งออก PDF ไม่สำเร็จ กรุณาลองใหม่',true);
@@ -1412,6 +1510,7 @@ function expExcelByHosp(type){
 
   XLSX.writeFile(wb,(type==='meet'?'รายงานลงทะเบียนประชุม_':'รายงานสั่งซื้อเพิ่ม_')+new Date().toISOString().slice(0,10)+'.xlsx');
   showToast('ส่งออก Excel สำเร็จ: '+data.length+' รายการ',false);
+  markExported(type);
 }
 
 // ===== LIST PAGE: EXPORT (flat, respects current filters) =====
@@ -1518,7 +1617,7 @@ function importExcelFile(file){
 var tTm;
 function showToast(msg,isErr){var t=document.getElementById('toast');t.className=isErr?'err':'ok';document.getElementById('tmsg').textContent=msg;clearTimeout(tTm);tTm=setTimeout(function(){t.className='';},3500);}
 
-syncSz();upd();renderDash();initFirebaseSafe();loadFromFirebase();loadPaymentsFromFirebase();
+syncSz();upd();renderDash();initFirebaseSafe();loadFromFirebase();loadPaymentsFromFirebase();loadLastExportFromFirebase();
 </script>
 </body>
 </html>
