@@ -440,11 +440,18 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
 <div class="pn" id="pn-report">
   <!-- ตัวกรองช่วงเวลาที่บันทึกข้อมูล ใช้ร่วมกับทั้ง 4 รายงาน -->
   <div class="card" style="padding:.85rem 1.25rem;margin-bottom:1rem">
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      <label style="font-size:12px;font-weight:700;color:#6b7280;white-space:nowrap">⏱️ กรองตามช่วงเวลาที่บันทึก:</label>
-      <input type="datetime-local" id="rpt-date-from" onchange="onRptDateRangeChange()" style="padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:13px">
-      <span style="font-size:12px;color:#6b7280">ถึง</span>
-      <input type="datetime-local" id="rpt-date-to" onchange="onRptDateRangeChange()" style="padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:13px">
+    <label style="font-size:12px;font-weight:700;color:#6b7280;white-space:nowrap;display:block;margin-bottom:8px">⏱️ กรองตามช่วงเวลาที่บันทึก:</label>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:12px;color:#6b7280;font-weight:600">จาก</span>
+        <input type="date" id="rpt-date-from-d" onchange="onRptDateRangeChange()" style="padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:13px" title="วัน/เดือน/ปี เริ่มต้น">
+        <input type="time" id="rpt-date-from-t" onchange="onRptDateRangeChange()" style="padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:13px" title="ชั่วโมง:นาที เริ่มต้น (ค่าเริ่มต้น 00:00)">
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:12px;color:#6b7280;font-weight:600">ถึง</span>
+        <input type="date" id="rpt-date-to-d" onchange="onRptDateRangeChange()" style="padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:13px" title="วัน/เดือน/ปี สิ้นสุด">
+        <input type="time" id="rpt-date-to-t" onchange="onRptDateRangeChange()" style="padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:Arial,sans-serif;font-size:13px" title="ชั่วโมง:นาที สิ้นสุด (ค่าเริ่มต้น 23:59)">
+      </div>
       <button class="btn-sm" onclick="clearRptDateRange()">✕ ล้างตัวกรอง</button>
     </div>
     <div id="rpt-date-range-info" style="font-size:11px;color:#0A5C48;font-weight:700;margin-top:8px"></div>
@@ -1114,9 +1121,11 @@ function getRptScopeSet(type){
 // ===== กรองข้อมูลตามช่วงเวลาที่บันทึก (ใช้ร่วมกันทั้ง 4 รายงาน) =====
 // id ของแต่ละรายการคือ Date.now() ตอนบันทึก จึงใช้เป็นเวลาบันทึกได้โดยตรง
 function getRptDateRange(){
-  var fromEl=document.getElementById('rpt-date-from'),toEl=document.getElementById('rpt-date-to');
-  var fromTs=fromEl && fromEl.value?new Date(fromEl.value).getTime():null;
-  var toTs=toEl && toEl.value?new Date(toEl.value).getTime():null;
+  var fd=document.getElementById('rpt-date-from-d').value,ft=document.getElementById('rpt-date-from-t').value;
+  var td=document.getElementById('rpt-date-to-d').value,tt=document.getElementById('rpt-date-to-t').value;
+  // ถ้าใส่แค่วันที่ไม่ได้ระบุเวลา ให้ถือว่าเริ่มต้น 00:00 น. และสิ้นสุด 23:59 น. ของวันนั้นโดยอัตโนมัติ
+  var fromTs=fd?new Date(fd+'T'+(ft||'00:00')).getTime():null;
+  var toTs=td?new Date(td+'T'+(tt||'23:59')).getTime():null;
   return {from:fromTs,to:toTs};
 }
 function inRptDateRange(o){
@@ -1136,8 +1145,10 @@ function onRptDateRangeChange(){
   renderReport();
 }
 function clearRptDateRange(){
-  document.getElementById('rpt-date-from').value='';
-  document.getElementById('rpt-date-to').value='';
+  document.getElementById('rpt-date-from-d').value='';
+  document.getElementById('rpt-date-from-t').value='';
+  document.getElementById('rpt-date-to-d').value='';
+  document.getElementById('rpt-date-to-t').value='';
   onRptDateRangeChange();
 }
 
