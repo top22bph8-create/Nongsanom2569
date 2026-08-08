@@ -931,15 +931,12 @@ function expPackingExcel(){
 }
 
 // ===== PDF (เฉพาะรายงานที่ 4) — ใช้ฟอนต์ Sarabun เพื่อรองรับภาษาไทย =====
-var thaiFontLoaded=false;
 function ensureThaiFont(doc){
-  if(!thaiFontLoaded){
-    doc.addFileToVFS('Sarabun-Regular.ttf',SARABUN_REGULAR_B64);
-    doc.addFont('Sarabun-Regular.ttf','Sarabun','normal');
-    doc.addFileToVFS('Sarabun-Bold.ttf',SARABUN_BOLD_B64);
-    doc.addFont('Sarabun-Bold.ttf','Sarabun','bold');
-    thaiFontLoaded=true;
-  }
+  // ต้องลงทะเบียนฟอนต์ใหม่ทุกครั้งที่สร้างเอกสาร PDF ใหม่ (VFS ผูกกับ instance ของเอกสารนั้นๆ)
+  doc.addFileToVFS('Sarabun-Regular.ttf',SARABUN_REGULAR_B64);
+  doc.addFont('Sarabun-Regular.ttf','Sarabun','normal');
+  doc.addFileToVFS('Sarabun-Bold.ttf',SARABUN_BOLD_B64);
+  doc.addFont('Sarabun-Bold.ttf','Sarabun','bold');
   doc.setFont('Sarabun','normal');
 }
 function expPackingPDF(){
@@ -949,13 +946,13 @@ function expPackingPDF(){
     var doc=new jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
     ensureThaiFont(doc);
     groups.forEach(function(g,gi){
-      if(gi>0)doc.addPage();
+      if(gi>0){doc.addPage();ensureThaiFont(doc);}
       doc.setFont('Sarabun','bold');doc.setFontSize(14);
       doc.text(RPT_TITLE,105,15,{align:'center'});
       doc.setFontSize(10);doc.setFont('Sarabun','normal');
       doc.text(RPT_SUBTITLE,105,21,{align:'center'});
       doc.setFont('Sarabun','bold');doc.setFontSize(13);
-      doc.text('📦 '+g.hosp,14,32);
+      doc.text('รพ.สต. '+g.hosp,14,32);
       doc.setFont('Sarabun','normal');doc.setFontSize(10);
       doc.text('อำเภอ'+amphoeOf(g.hosp)+'   โทร '+((HOSP_INFO[g.hosp]&&HOSP_INFO[g.hosp].phone)||'-'),14,38);
       doc.text('รวม '+g.rows.length+' คน / '+g.qty+' ตัว   วันที่ออกใบ: '+new Date().toLocaleDateString('th-TH'),14,44);
