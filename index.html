@@ -157,9 +157,9 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
 .racc-name{font-size:13px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .racc-meta{font-size:12px;font-weight:600;background:rgba(255,255,255,.22);border-radius:20px;padding:3px 11px;flex-shrink:0;white-space:nowrap}
 .racc-arrow{font-size:12px;flex-shrink:0;transition:transform .2s;opacity:.85}
-.racc.open .racc-arrow{transform:rotate(180deg)}
+.racc.open > .racc-bar .racc-arrow{transform:rotate(180deg)}
 .racc-body{max-height:0;overflow:hidden;transition:max-height .25s ease}
-.racc.open .racc-body{max-height:4000px}
+.racc.open > .racc-body{max-height:4000px}
 .racc-body-in{padding:2px 0 0}
 .racc-total{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:10px;background:#111827;color:#fff;font-size:13px;font-weight:700;margin-top:4px}
 .racc-bar.paid{background:linear-gradient(135deg,#15803D,#22C55E)}
@@ -464,7 +464,15 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
       <select id="exp-hosp-meet" onchange="renderReport()"><option value="__all__">ทุก รพ.สต.</option></select>
       <button class="btn-exp bxl" onclick="expExcelByHosp('meet')">📊 ส่งออก Excel</button>
     </div>
-    <div id="rpt-meet-hosp"></div>
+    <div class="racc" id="rpt-meet-master">
+      <button class="racc-bar" onclick="toggleRptGroup('rpt-meet-master')">
+        <span class="racc-ic">🏥</span><span class="racc-name">รายชื่อ รพ.สต. ทั้งหมด — กดเพื่อแสดง/ซ่อนรายละเอียด</span>
+        <span class="racc-arrow">▾</span>
+      </button>
+      <div class="racc-body"><div class="racc-body-in">
+        <div id="rpt-meet-hosp"></div>
+      </div></div>
+    </div>
   </div>
 
   <!-- รายงาน 2: สั่งซื้อเพิ่ม -->
@@ -476,7 +484,15 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
       <select id="exp-hosp-extra" onchange="renderReport()"><option value="__all__">ทุก รพ.สต.</option></select>
       <button class="btn-exp bxl" onclick="expExcelByHosp('extra')">📊 ส่งออก Excel</button>
     </div>
-    <div id="rpt-extra-hosp"></div>
+    <div class="racc" id="rpt-extra-master">
+      <button class="racc-bar ex" onclick="toggleRptGroup('rpt-extra-master')">
+        <span class="racc-ic">🏥</span><span class="racc-name">รายชื่อ รพ.สต. ทั้งหมด — กดเพื่อแสดง/ซ่อนรายละเอียด</span>
+        <span class="racc-arrow">▾</span>
+      </button>
+      <div class="racc-body"><div class="racc-body-in">
+        <div id="rpt-extra-hosp"></div>
+      </div></div>
+    </div>
   </div>
 
   <!-- รายงาน 3: สรุปยอดตามไซส์ สำหรับส่งร้านผลิต -->
@@ -508,7 +524,15 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
       <button class="btn-exp bxl" onclick="expPackingExcel()">📊 ส่งออก Excel</button>
       <button class="btn-exp bpdf" onclick="expPackingPDF()">📄 ส่งออก PDF</button>
     </div>
-    <div id="rpt-pack-hosp"></div>
+    <div class="racc" id="rpt-pack-master">
+      <button class="racc-bar" onclick="toggleRptGroup('rpt-pack-master')">
+        <span class="racc-ic">🏥</span><span class="racc-name">รายชื่อ รพ.สต. ทั้งหมด — กดเพื่อแสดง/ซ่อนรายละเอียด</span>
+        <span class="racc-arrow">▾</span>
+      </button>
+      <div class="racc-body"><div class="racc-body-in">
+        <div id="rpt-pack-hosp"></div>
+      </div></div>
+    </div>
   </div>
 </div>
 
