@@ -633,7 +633,7 @@ function autoBackup(){
   if(!fbEnabled || !backupRef)return;
   try{
     var key=String(Date.now());
-    backupRef.child(key).set({ts:Date.now(),tsLabel:new Date().toLocaleString('th-TH'),count:orders.length,data:ordersWithAmphoe()}).then(function(){
+    backupRef.child(key).set({ts:Date.now(),tsLabel:fmtThaiDT(Date.now()),count:orders.length,data:ordersWithAmphoe()}).then(function(){
       // ตรวจสอบ/ลบสำรองเก่าเป็นบางครั้ง (ไม่ต้องทำทุกครั้งเพื่อลดภาระ ให้บันทึกข้อมูลเร็วขึ้น)
       if(Math.random()<0.2){
         backupRef.orderByKey().once('value',function(s){
@@ -917,6 +917,13 @@ function renderAmphoeChips(){
 }
 
 function fmt(n){return Number(n).toLocaleString();}
+// จัดรูปแบบวันที่-เวลาแบบไทย เวลาเป็น 24 ชั่วโมงเสมอ เช่น 8/8/2569 14.05 น.
+function fmtThaiDT(ts){
+  var d=new Date(ts);
+  var day=d.getDate(),month=d.getMonth()+1,year=d.getFullYear()+543;
+  var hh=d.getHours(),mm=String(d.getMinutes()).padStart(2,'0');
+  return day+'/'+month+'/'+year+' '+hh+'.'+mm+' น.';
+}
 function chkOth(){document.getElementById('oth-wrap').style.display=document.getElementById('f-dept').value==='__oth__'?'block':'none';}
 function setTyp(t){otyp=t;document.getElementById('t-meet').className='to'+(t==='meet'?' m-on':'');document.getElementById('t-extra').className='to'+(t==='extra'?' e-on':'');document.getElementById('extra-payment-notice').style.display=(t==='extra')?'flex':'none';}
 function syncSz(){var g=document.getElementById('f-gender').value,d=SD[g],s=document.getElementById('f-size');s.innerHTML='';d.ch.forEach(function(c,i){var o=document.createElement('option');o.value=i;o.textContent=c+'" (ยาว '+d.ln[i]+'")';s.appendChild(o);});showM();}
@@ -1138,7 +1145,7 @@ function onRptDateRangeChange(){
   var r=getRptDateRange();
   var infoEl=document.getElementById('rpt-date-range-info');
   if(r.from||r.to){
-    infoEl.textContent='🔎 กำลังกรองเฉพาะรายการที่บันทึกตั้งแต่ '+(r.from?new Date(r.from).toLocaleString('th-TH'):'จุดเริ่มต้น')+' ถึง '+(r.to?new Date(r.to).toLocaleString('th-TH'):'ปัจจุบัน')+' — มีผลกับทุกรายงานและการส่งออกในหน้านี้';
+    infoEl.textContent='🔎 กำลังกรองเฉพาะรายการที่บันทึกตั้งแต่ '+(r.from?fmtThaiDT(r.from):'จุดเริ่มต้น')+' ถึง '+(r.to?fmtThaiDT(r.to):'ปัจจุบัน')+' — มีผลกับทุกรายงานและการส่งออกในหน้านี้';
   }else{
     infoEl.textContent='';
   }
@@ -1435,7 +1442,7 @@ function expExcelByHosp(type){
   var reportName=type==='meet'?'รายงานการสั่งซื้อประเภทเข้าร่วมประชุม':'รายงานการสั่งซื้อประเภทสั่งซื้อเพิ่มเติม (ไม่ได้เข้าร่วมประชุม)';
   if(selHosp!=='__all__')reportName+=' — '+selHosp;
   else if(selAmphoe!=='__all__')reportName+=' — อำเภอ'+selAmphoe;
-  if(dr.from||dr.to)reportName+=' — ช่วงเวลาที่บันทึก: '+(dr.from?new Date(dr.from).toLocaleString('th-TH'):'เริ่มต้น')+' ถึง '+(dr.to?new Date(dr.to).toLocaleString('th-TH'):'ปัจจุบัน');
+  if(dr.from||dr.to)reportName+=' — ช่วงเวลาที่บันทึก: '+(dr.from?fmtThaiDT(dr.from):'เริ่มต้น')+' ถึง '+(dr.to?fmtThaiDT(dr.to):'ปัจจุบัน');
   if(!data.length){showToast('ไม่มีข้อมูลสำหรับส่งออก',true);return;}
 
   var groups=groupByHosp(data);
