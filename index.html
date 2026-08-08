@@ -726,11 +726,12 @@ function renderPayment(){
 
   // ===== แถบสรุปแดชบอร์ดการชำระเงิน =====
   var statsEl=document.getElementById('pay-stats');
-  var totalPeople=0,paidPeople=0,totalOwed=0,totalPaidAmt=0;
+  var totalPeople=0,paidPeople=0,totalOwed=0,totalPaidAmt=0,totalQty=0;
   depts.forEach(function(dept){
     var sum=getPaymentSummary(dept);
     var people=extraByDept[dept];
     totalPeople+=people.length;
+    totalQty+=people.reduce(function(s,o){return s+o.qty;},0);
     totalOwed+=sum.owed;
     totalPaidAmt+=sum.paid;
     if(sum.status==='paid'){
@@ -743,7 +744,7 @@ function renderPayment(){
   });
   var totalRemaining=Math.max(0,totalOwed-totalPaidAmt);
   statsEl.innerHTML=
-    '<div class="mc mc-b"><div class="mn">'+totalPeople+'</div><div class="ml">คนสั่งซื้อเพิ่ม</div></div>'+
+    '<div class="mc mc-b"><div class="mn">'+totalQty+'</div><div class="ml">สั่งซื้อเพิ่ม (ตัว)</div><div style="font-size:11px;color:rgba(255,255,255,.92);font-weight:700;margin-top:2px">จากรายชื่อ '+totalPeople+' คน</div></div>'+
     '<div class="mc mc-g"><div class="mn">'+paidPeople+'</div><div class="ml">คนชำระแล้ว (โดยประมาณ)</div></div>'+
     '<div class="mc mc-p"><div class="mn">'+fmt(totalOwed)+'</div><div class="ml">ยอดรวมทั้งหมด (บาท)</div></div>'+
     '<div class="mc mc-t"><div class="mn">'+fmt(totalPaidAmt)+'</div><div class="ml">ยอดที่ชำระแล้ว (บาท)</div></div>'+
