@@ -167,6 +167,13 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
 .racc-name.multi{white-space:normal!important;line-height:1.6}
 .notice-banner{background:#fff7ed;border:1.5px solid #fed7aa;border-radius:10px;padding:10px 14px;margin-bottom:1rem;font-size:13px;color:#9a3412;display:flex;align-items:center;gap:8px}
 .slip-thumb{width:70px;height:70px;object-fit:cover;border-radius:8px;border:1.5px solid #e5e7eb;display:block}
+.pay-name-click{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;transition:opacity .15s}
+.pay-name-click:hover{opacity:.75}
+.racc-arrow-btn{background:rgba(255,255,255,.2);border:none;border-radius:6px;padding:4px 9px;cursor:pointer;color:#fff;font-size:13px;flex-shrink:0}
+.racc-arrow-btn:hover{background:rgba(255,255,255,.32)}
+.pay-person-name{cursor:pointer;font-weight:600;text-decoration:underline dotted;text-underline-offset:3px;color:#0A5C48}
+.pay-person-name:hover{opacity:.7}
+@keyframes bounceDown{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
 .racc-total .racc-meta{background:rgba(255,255,255,.18)}
 .racc-toolbar{display:flex;justify-content:flex-end;gap:8px;margin-bottom:8px}
 /* EXPORT BUTTONS */
@@ -409,6 +416,11 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
       <div>💳 <b>โอนผ่าน QR พร้อมเพย์</b> หรือ ธนาคารกรุงไทย</div>
       <div><b>ชื่อบัญชี:</b> นาง จินตนา คำสวาสดิ์</div>
       <div><b>เลขที่บัญชี:</b> 4121477650</div>
+    </div>
+    <div style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border:1.5px solid #93C5FD;border-radius:12px;padding:14px 16px;margin-bottom:1.25rem;font-size:13px;color:#1E3A8A;text-align:center;line-height:1.8">
+      <div style="font-size:20px;margin-bottom:2px">📌</div>
+      <div>วิธีแนบสลิป: กดที่ <b>ชื่อ รพ.สต.</b> เพื่อแนบสลิป<b>รวมทั้งหน่วย</b> หรือกดที่ <b>ชื่อผู้สั่งจอง</b> ในรายชื่อด้านล่าง เพื่อแนบสลิป<b>รายบุคคล</b></div>
+      <div style="font-size:22px;margin-top:4px;animation:bounceDown 1.4s infinite">⬇️</div>
     </div>
     <div class="fbar">
       <select id="pay-amphoe" onchange="onPayAmphoeChange()"><option value="__all__">ทุกอำเภอ</option></select>
@@ -713,26 +725,23 @@ function renderPayment(){
     var statusTxt=sum.isPaid?'✅ ชำระครบแล้ว':'⏳ ค้างชำระ '+fmt(sum.remaining)+' บาท';
     var deptEsc=dept.replace(/'/g,"\\'");
     var peopleRows=extraByDept[dept].map(function(o){
-      return '<tr><td style="font-weight:600">'+o.name+'</td><td>'+o.qty+' ตัว</td><td class="num">'+fmt(o.qty*PRICE)+' บาท</td><td style="text-align:right"><button class="btn-sm" style="padding:4px 10px" onclick="attachSlip(\''+deptEsc+'\','+o.id+','+(o.qty*PRICE)+')">📎 แนบสลิป</button></td></tr>';
+      return '<tr><td><span class="pay-person-name" title="กดเพื่อแนบสลิปของ '+o.name+'" onclick="attachSlip(\''+deptEsc+'\','+o.id+','+(o.qty*PRICE)+')">📎 '+o.name+'</span></td><td>'+o.qty+' ตัว</td><td class="num">'+fmt(o.qty*PRICE)+' บาท</td></tr>';
     }).join('');
     var slipsForDept=payments.filter(function(p){return p.dept===dept;});
     var slipsHtml=slipsForDept.length?('<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">'+slipsForDept.map(function(p){
       return '<div style="text-align:center"><a href="'+p.slipUrl+'" target="_blank"><img src="'+p.slipUrl+'" class="slip-thumb"></a><div style="font-size:10px;color:#6b7280;margin-top:2px">'+fmt(p.amount)+' บาท</div><button style="border:none;background:none;color:#dc2626;font-size:10px;cursor:pointer;text-decoration:underline" onclick="removePayment('+p.id+')">ลบ</button></div>';
     }).join('')+'</div>') : '<p style="font-size:12px;color:#9ca3af;margin-top:10px">ยังไม่มีสลิปแนบ</p>';
     html+='<div class="racc" id="'+barId+'">'+
-      '<button class="racc-bar '+(sum.isPaid?'paid':'unpaid')+'" onclick="toggleRptGroup(\''+barId+'\')">'+
+      '<div class="racc-bar '+(sum.isPaid?'paid':'unpaid')+'" style="cursor:default">'+
         '<span class="racc-ic">'+(sum.isPaid?'✅':'💳')+'</span>'+
-        '<span class="racc-name multi">'+dept+' <span style="opacity:.85;font-weight:500;font-size:12px">(อ.'+amphoeOf(dept)+')</span><br><span style="font-size:11px;font-weight:600;opacity:.95">ยอดที่ต้องชำระ '+fmt(sum.owed)+' บาท — '+statusTxt+'</span></span>'+
-        '<span class="racc-arrow">▾</span>'+
-      '</button>'+
+        '<span class="racc-name multi pay-name-click" title="กดเพื่อแนบสลิปรวมทั้ง รพ.สต." onclick="attachSlip(\''+deptEsc+'\',null,'+sum.remaining+')">📎 '+dept+' <span style="opacity:.85;font-weight:500;font-size:12px">(อ.'+amphoeOf(dept)+')</span><br><span style="font-size:11px;font-weight:600;opacity:.95">ยอดที่ต้องชำระ '+fmt(sum.owed)+' บาท — '+statusTxt+'</span></span>'+
+        '<button class="racc-arrow-btn" onclick="toggleRptGroup(\''+barId+'\')">▾</button>'+
+      '</div>'+
       '<div class="racc-body"><div class="racc-body-in">'+
         '<div class="tw"><table class="rt">'+
-          '<tr><th>ชื่อ-สกุล</th><th>จำนวน</th><th class="num">ยอดที่ต้องชำระ</th><th></th></tr>'+
+          '<tr><th>ชื่อ-สกุล (กดชื่อเพื่อแนบสลิป)</th><th>จำนวน</th><th class="num">ยอดที่ต้องชำระ</th></tr>'+
           peopleRows+
         '</table></div>'+
-        '<div style="margin-top:12px;padding-top:12px;border-top:1px dashed #e5e7eb;text-align:center">'+
-          '<button class="btn-sm" style="background:#0A5C48;color:#fff;border-color:#0A5C48" onclick="attachSlip(\''+deptEsc+'\',null,'+sum.remaining+')">📎 แนบสลิปรวมทั้ง รพ.สต. (คงเหลือ '+fmt(sum.remaining)+' บาท)</button>'+
-        '</div>'+
         slipsHtml+
       '</div></div>'+
     '</div>';
