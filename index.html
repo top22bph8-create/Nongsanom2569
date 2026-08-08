@@ -404,6 +404,7 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
       <select id="fl-d" onchange="renderList()"><option value="">ทุกหน่วยบริการ</option></select>
       <select id="fl-g" onchange="renderList()"><option value="">ทุกเพศ</option><option value="M">ชาย</option><option value="F">หญิง</option></select>
       <select id="fl-t" onchange="renderList()"><option value="">ทุกประเภท</option><option value="meet">ลงทะเบียนประชุม</option><option value="extra">สั่งซื้อเพิ่ม</option></select>
+      <button class="btn-sm" id="fl-unmatched-btn" style="border-color:#fecaca;color:#dc2626;background:#fef2f2" onclick="toggleUnmatchedFilter()">⚠️ แสดงเฉพาะไม่พบ รพ.สต.</button>
     </div>
     <div id="ol"></div>
   </div>
@@ -1019,6 +1020,7 @@ function confirmMove(){
   o.dept=newDept;
   closeMoveModal();
   upd();renderDash();if(curH===oldDept)openHM(oldDept);
+  if(document.getElementById('pn-list').classList.contains('on'))renderList();
   showSavePopup('ย้าย "'+o.name+'" ไป '+newDept+' สำเร็จ');
   svFirebase();
 }
@@ -1047,12 +1049,20 @@ function syncESz(g,si){g=g||document.getElementById('e-gender').value;var d=SD[g
 function saveEdit(){var o=orders.find(function(x){return x.id===editId;});if(!o)return;var pre=document.getElementById('e-prefix').value,fn=document.getElementById('e-fname').value.trim(),ln=document.getElementById('e-lname').value.trim(),g=document.getElementById('e-gender').value,si=parseInt(document.getElementById('e-size').value)||0,d=SD[g];o.name=pre+fn+(ln?' '+ln:'');o.phone=document.getElementById('e-phone').value.trim();o.dept=document.getElementById('e-dept').value.trim()||o.dept;o.g=g;o.si=si;o.ch=d.ch[si];o.ln=d.ln[si];o.qty=Math.max(1,parseInt(document.getElementById('e-qty').value)||1);o.type=document.getElementById('e-type').value;closeEM();upd();renderDash();showSavePopup('แก้ไขข้อมูล "'+o.name+'" สำเร็จ');svFirebase();}
 function closeEM(){document.getElementById('edit-modal').classList.remove('on');editId=null;}
 
+var showUnmatchedOnly=false;
+function toggleUnmatchedFilter(){
+  showUnmatchedOnly=!showUnmatchedOnly;
+  var btn=document.getElementById('fl-unmatched-btn');
+  btn.style.background=showUnmatchedOnly?'#dc2626':'#fef2f2';
+  btn.style.color=showUnmatchedOnly?'#fff':'#dc2626';
+  renderList();
+}
 function renderList(){
   var av=document.getElementById('fl-amphoe').value,dv=document.getElementById('fl-d').value,gv=document.getElementById('fl-g').value,tv=document.getElementById('fl-t').value;
-  var f=orders.filter(function(o){var oa=(HOSP_INFO[o.dept]&&HOSP_INFO[o.dept].amphoe)||'';return(!av||oa===av)&&(!dv||o.dept===dv)&&(!gv||o.g===gv)&&(!tv||o.type===tv);});
+  var f=orders.filter(function(o){var oa=(HOSP_INFO[o.dept]&&HOSP_INFO[o.dept].amphoe)||'';return(!av||oa===av)&&(!dv||o.dept===dv)&&(!gv||o.g===gv)&&(!tv||o.type===tv)&&(!showUnmatchedOnly||!HOSP_INFO[o.dept]);});
   var el=document.getElementById('ol');
   if(!f.length){el.innerHTML='<p class="emp">ไม่พบรายการ</p>';return;}
-  el.innerHTML=f.map(function(o){return '<div class="oi"><div class="av '+(o.g==='M'?'avm':'avf')+'">'+o.name.charAt(0)+'</div><div class="oin"><div class="oname">'+o.name+'</div><div class="ometa">'+o.dept+' | 📞 '+(o.phone||'-')+' | '+(o.type==='meet'?'ลงทะเบียนประชุม':'🛒 สั่งซื้อเพิ่ม')+'</div></div><div style="text-align:right;flex-shrink:0;margin-right:8px"><span class="osiz">'+(o.g==='M'?'ชาย':'หญิง')+' '+o.ch+'"</span>'+(o.type==='extra'?'<div style="font-size:11px;color:#B45309;font-weight:700">'+fmt(o.qty*PRICE)+' บาท</div>':'')+'<div style="font-size:11px;color:#6b7280">'+o.qty+' ตัว</div></div><button class="btn-sm" style="padding:4px 8px" onclick="openEML('+o.id+')">✏ แก้ไข</button></div>';}).join('');
+  el.innerHTML=f.map(function(o){var unmatched=!HOSP_INFO[o.dept];return '<div class="oi"><div class="av '+(o.g==='M'?'avm':'avf')+'">'+o.name.charAt(0)+'</div><div class="oin"><div class="oname">'+o.name+'</div><div class="ometa">'+o.dept+(unmatched?' <span style="color:#dc2626;font-weight:700">⚠️ ไม่พบในรายชื่อ รพ.สต.ปัจจุบัน</span>':'')+' | 📞 '+(o.phone||'-')+' | '+(o.type==='meet'?'ลงทะเบียนประชุม':'🛒 สั่งซื้อเพิ่ม')+'</div></div><div style="text-align:right;flex-shrink:0;margin-right:8px"><span class="osiz">'+(o.g==='M'?'ชาย':'หญิง')+' '+o.ch+'"</span>'+(o.type==='extra'?'<div style="font-size:11px;color:#B45309;font-weight:700">'+fmt(o.qty*PRICE)+' บาท</div>':'')+'<div style="font-size:11px;color:#6b7280">'+o.qty+' ตัว</div></div><div style="display:flex;gap:4px;flex-shrink:0"><button class="btn-sm" style="padding:4px 8px" onclick="openEML('+o.id+')">✏ แก้ไข</button><button class="bmv" onclick="openMoveModal('+o.id+')">🔀 ย้าย</button></div></div>';}).join('');
 }
 function openEML(id){goTab('dash');setTimeout(function(){openEM(id);},100);}
 
