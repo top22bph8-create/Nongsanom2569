@@ -963,7 +963,13 @@ function renderPayment(){
     var statusTxt=sum.status==='paid'?'✅ ชำระครบแล้ว':(sum.status==='partial'?'🟡 ชำระบางส่วนแล้ว '+fmt(sum.paid)+' บาท ค้างอีก '+fmt(sum.remaining)+' บาท':'⏳ ยังไม่ได้ชำระ ('+fmt(sum.owed)+' บาท)');
     var deptEsc=dept.replace(/'/g,"\\'");
     var peopleRows=extraByDept[dept].map(function(o){
-      return '<tr><td style="font-weight:600">'+o.name+'</td><td>'+o.qty+' ตัว</td><td class="num" style="text-align:center">'+fmt(o.qty*PRICE)+' บาท</td><td style="text-align:right;white-space:nowrap"><button class="btn-sm" style="padding:5px 10px" onclick="attachSlip(\''+deptEsc+'\','+o.id+','+(o.qty*PRICE)+')">📎 แนบสลิป</button> <button class="btn-sm" style="padding:5px 10px;background:#EFF6FF;border-color:#93C5FD;color:#1D4ED8" onclick="issueReceiptPerson(\''+deptEsc+'\','+o.id+')">🧾 ใบเสร็จ</button></td></tr>';
+      var owed=o.qty*PRICE;
+      var paidAmt=sum.status==='paid'?owed:payments.filter(function(p){return p.dept===dept && p.personId===o.id;}).reduce(function(s,p){return s+p.amount;},0);
+      var isPersonPaid=paidAmt>=owed;
+      var rowBg=isPersonPaid?'#F0FDF4':'#FEFCE8';
+      var statusBadge=isPersonPaid?'<span style="background:#16A34A;color:#fff;border-radius:12px;padding:2px 9px;font-size:11px;font-weight:700;white-space:nowrap">✅ ชำระแล้ว</span>':'<span style="background:#EAB308;color:#fff;border-radius:12px;padding:2px 9px;font-size:11px;font-weight:700;white-space:nowrap">⏳ ค้างชำระ</span>';
+      var receiptBtn=isPersonPaid?(' <button class="btn-sm" style="padding:5px 10px;background:#EFF6FF;border-color:#93C5FD;color:#1D4ED8" onclick="issueReceiptPerson(\''+deptEsc+'\','+o.id+')">🧾 ใบเสร็จ</button>'):'';
+      return '<tr style="background:'+rowBg+'"><td style="font-weight:600">'+o.name+'</td><td>'+o.qty+' ตัว</td><td class="num" style="text-align:center">'+fmt(owed)+' บาท</td><td style="text-align:center">'+statusBadge+'</td><td style="text-align:right;white-space:nowrap"><button class="btn-sm" style="padding:5px 10px" onclick="attachSlip(\''+deptEsc+'\','+o.id+','+owed+')">📎 แนบสลิป</button>'+receiptBtn+'</td></tr>';
     }).join('');
     var slipsForDept=payments.filter(function(p){return p.dept===dept;});
     var slipsHtml=slipsForDept.length?('<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">'+slipsForDept.map(function(p){
@@ -977,13 +983,13 @@ function renderPayment(){
       '</button>'+
       '<div class="racc-body"><div class="racc-body-in">'+
         '<div class="tw"><table class="rt">'+
-          '<tr><th>ชื่อ-สกุล (ผู้สั่งจอง)</th><th>จำนวน</th><th style="text-align:center">ยอดที่ต้องชำระ</th><th></th></tr>'+
+          '<tr><th>ชื่อ-สกุล (ผู้สั่งจอง)</th><th>จำนวน</th><th style="text-align:center">ยอดที่ต้องชำระ</th><th style="text-align:center">สถานะ</th><th></th></tr>'+
           peopleRows+
         '</table></div>'+
         '<div style="margin-top:12px;padding-top:12px;border-top:1px dashed #e5e7eb;text-align:center">'+
-          '<div style="font-size:12px;color:#6b7280;margin-bottom:8px">หากโอนเงินรวมทีเดียวสำหรับทุกคนใน รพ.สต. นี้ ให้แนบสลิปที่นี่:</div>'+
-          '<button class="btn-sm" style="background:#0A5C48;color:#fff;border-color:#0A5C48" onclick="attachSlip(\''+deptEsc+'\',null,'+sum.remaining+')">📎 แนบสลิปรวมทั้ง รพ.สต. (คงเหลือ '+fmt(sum.remaining)+' บาท)</button> '+
-          '<button class="btn-sm" style="background:#EFF6FF;border-color:#93C5FD;color:#1D4ED8" onclick="issueReceiptHosp(\''+deptEsc+'\')">🧾 ออกใบเสร็จรวมทั้ง รพ.สต.</button>'+
+          '<div style="font-size:12px;color:#6b7280;margin-bottom:8px">หากโอนเงินรวมทีเดียวสำหรับทุกคนใน รพ.สต. นี้ ให้แนบสลิปพร้อมระบุยอดที่โอนตามสลิป แล้วกดบันทึกที่นี่:</div>'+
+          '<button class="btn-sm" style="background:#0A5C48;color:#fff;border-color:#0A5C48" onclick="attachSlip(\''+deptEsc+'\',null,'+sum.remaining+')">📎 แนบสลิปรวมทั้ง รพ.สต. (คงเหลือ '+fmt(sum.remaining)+' บาท)</button>'+
+          (sum.status==='paid'?' <button class="btn-sm" style="background:#EFF6FF;border-color:#93C5FD;color:#1D4ED8" onclick="issueReceiptHosp(\''+deptEsc+'\')">🧾 ออกใบเสร็จรวมทั้ง รพ.สต.</button>':' <span style="font-size:11px;color:#9ca3af">(ปุ่มออกใบเสร็จรวมจะปรากฏเมื่อยอดที่แนบครบตามที่ต้องชำระแล้ว)</span>')+
         '</div>'+
         slipsHtml+
       '</div></div>'+
