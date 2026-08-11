@@ -323,9 +323,14 @@ hr{border:none;border-top:1.5px solid #f3f4f6;margin:1rem 0}
   <div class="card">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:1rem">
       <div class="sec" style="margin:0">🏥 สถานะ รพ.สต. — คลิกเพื่อดู/แก้ไข</div>
-      <div style="display:flex;gap:8px">
-        <span style="font-size:12px;font-weight:700;color:#0A5C48;background:#E1F5EE;border-radius:20px;padding:3px 12px" id="d-hdone">0 แห่ง สั่งแล้ว</span>
-        <span style="font-size:12px;font-weight:700;color:#6b7280;background:#f3f4f6;border-radius:20px;padding:3px 12px" id="d-hnone">0 แห่ง ยังไม่สั่ง</span>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button type="button" style="font-size:12px;font-weight:700;color:#0A5C48;background:#E1F5EE;border:1.5px solid transparent;border-radius:20px;padding:3px 12px;cursor:pointer" id="d-hdone" onclick="setHospStatusFilter('done')">0 แห่ง สั่งแล้ว</button>
+        <button type="button" style="font-size:12px;font-weight:700;color:#6b7280;background:#f3f4f6;border:1.5px solid transparent;border-radius:20px;padding:3px 12px;cursor:pointer" id="d-hnone" onclick="setHospStatusFilter('none')">0 แห่ง ยังไม่สั่ง</button>
+        <select id="hosp-status-filter" onchange="renderDash()" style="padding:5px 10px;border:1.5px solid #e5e7eb;border-radius:20px;font-family:Arial,sans-serif;font-size:12px;font-weight:600;color:#374151">
+          <option value="all">แสดงทั้งหมด</option>
+          <option value="done">เฉพาะที่สั่งแล้ว</option>
+          <option value="none">เฉพาะที่ยังไม่สั่ง</option>
+        </select>
       </div>
     </div>
     <div id="amphoe-chips" style="display:flex;gap:6px;flex-wrap:wrap;overflow-x:auto;margin-bottom:1rem;padding-bottom:4px"></div>
@@ -1196,6 +1201,9 @@ function renderDash(){
   var ds={};scopeOrders.forEach(function(o){if(!ds[o.dept])ds[o.dept]=0;ds[o.dept]+=o.qty;});
   var done=scopeHosp.filter(function(h){return ds[h];}).length;
   document.getElementById('d-h').textContent=done+'/'+scopeHosp.length;document.getElementById('d-hdone').textContent=done+' แห่ง สั่งแล้ว';document.getElementById('d-hnone').textContent=(scopeHosp.length-done)+' แห่ง ยังไม่สั่ง';
+  var curStatusFilterVal=document.getElementById('hosp-status-filter')?document.getElementById('hosp-status-filter').value:'all';
+  document.getElementById('d-hdone').style.border=curStatusFilterVal==='done'?'1.5px solid #0A5C48':'1.5px solid transparent';
+  document.getElementById('d-hnone').style.border=curStatusFilterVal==='none'?'1.5px solid #6b7280':'1.5px solid transparent';
   var tb=document.getElementById('typebars');
   if(!tot){tb.innerHTML='<p class="emp">ยังไม่มีข้อมูล</p>';}
   else{var pm=Math.round(meet/tot*100),pe=Math.round(extra/tot*100);tb.innerHTML='<div class="br"><span class="bl">ลงทะเบียนประชุม</span><div class="bw"><div class="bp" style="width:'+pm+'%;background:#1D9E75"></div></div><span class="bv" style="color:#0A5C48">'+meet+'</span></div><div class="br"><span class="bl">สั่งซื้อเพิ่ม</span><div class="bw"><div class="bp" style="width:'+pe+'%;background:#B45309"></div></div><span class="bv" style="color:#B45309">'+extra+'</span></div>';}
@@ -1205,7 +1213,18 @@ function renderDash(){
   if(!tops.length){ts.innerHTML='<p class="emp">ยังไม่มีข้อมูล</p>';}
   else ts.innerHTML=tops.map(function(r){return '<div class="br"><span class="bl">'+r.lb+'</span><div class="bw"><div class="bp" style="width:'+Math.round(r.qty/mx*100)+'%;background:'+(r.g==='M'?'#3B82F6':'#7C3AED')+'"></div></div><span class="bv">'+r.qty+'</span></div>';}).join('');
   var hg=document.getElementById('hosp-grid');
-  hg.innerHTML=scopeHosp.map(function(h){var qty=ds[h]||0,phone=(HOSP_INFO[h]&&HOSP_INFO[h].phone)||'';var hEsc=h.replace(/'/g,"\\'");return '<div class="hi'+(qty?' has':'')+'" onclick="openHM(\''+hEsc+'\')">'+'<div class="hd '+(qty?'dy':'dn')+'"></div><div class="hn-wrap"><div class="hn">'+h+'</div>'+(phone?'<div class="hph">📞 '+phone+'</div>':'')+'</div>'+(qty?'<span class="hc">'+qty+' ตัว</span>':'<span style="font-size:11px;color:#9ca3af">ยังไม่สั่ง</span>')+'</div>';}).join('');
+  var statusFilter=document.getElementById('hosp-status-filter')?document.getElementById('hosp-status-filter').value:'all';
+  var displayHosp=scopeHosp.filter(function(h){
+    if(statusFilter==='done')return !!ds[h];
+    if(statusFilter==='none')return !ds[h];
+    return true;
+  });
+  hg.innerHTML=displayHosp.length?displayHosp.map(function(h){var qty=ds[h]||0,phone=(HOSP_INFO[h]&&HOSP_INFO[h].phone)||'';var hEsc=h.replace(/'/g,"\\'");return '<div class="hi'+(qty?' has':'')+'" onclick="openHM(\''+hEsc+'\')">'+'<div class="hd '+(qty?'dy':'dn')+'"></div><div class="hn-wrap"><div class="hn">'+h+'</div>'+(phone?'<div class="hph">📞 '+phone+'</div>':'')+'</div>'+(qty?'<span class="hc">'+qty+' ตัว</span>':'<span style="font-size:11px;color:#9ca3af">ยังไม่สั่ง</span>')+'</div>';}).join(''):'<p class="emp">ไม่พบ รพ.สต. ตามตัวกรองที่เลือก</p>';
+}
+function setHospStatusFilter(v){
+  var sel=document.getElementById('hosp-status-filter');
+  sel.value=sel.value===v?'all':v;
+  renderDash();
 }
 
 function openHM(name){curH=name;var rows=orders.filter(function(o){return o.dept===name;});document.getElementById('hosp-title').textContent=name+' — '+rows.length+' คน';var el=document.getElementById('hosp-body');if(!rows.length){el.innerHTML='<p class="emp">ยังไม่มีรายการ</p>';}else{el.innerHTML=rows.map(function(o){return '<div class="er"><div class="eav '+(o.g==='M'?'avm':'avf')+'">'+o.name.charAt(0)+'</div><div class="ein"><div class="enm">'+o.name+'</div><div class="emt">📞 '+(o.phone||'-')+' | '+(o.g==='M'?'ชาย':'หญิง')+' รอบอก '+o.ch+'" | '+o.qty+' ตัว'+(o.type==='extra'?' | 💰 '+fmt(o.qty*PRICE)+' บาท':'')+'</div><div class="ebt"><button class="bed" onclick="openEM('+o.id+')">✏ แก้ไข</button><button class="bmv" onclick="openMoveModal('+o.id+')">🔀 ย้าย</button><button class="bde" onclick="askDelFH('+o.id+')">🗑 ลบ</button></div></div></div>';}).join('');}document.getElementById('hosp-modal').classList.add('on');document.getElementById('hosp-modal').scrollIntoView({behavior:'smooth',block:'start'});}
